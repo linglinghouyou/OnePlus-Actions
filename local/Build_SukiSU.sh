@@ -29,7 +29,7 @@ KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
 KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
-bbg=$(ask "Enable Baseband-guard? (On/Off)" "On")
+bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
 proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
@@ -38,15 +38,15 @@ echo ""
 echo "================================================="
 echo "         Configuration Summary"
 echo "================================================="
-echo "Phone Model        : $FEIL"
-echo "CPU                : $CPU"
-echo "Android Version    : $ANDROID_VERSION"
-echo "Kernel Version     : $KERNEL_VERSION"
-echo "KPM Enabled        : $KPM"
-echo "lz4kd Enabled      : $lz4kd"
-echo "BBR Enabled        : $bbr"
-echo "BBG Enabled        : $bbg"
-echo "Proxy Opts Enabled : $proxy"
+echo "Phone Model            : $FEIL"
+echo "CPU                    : $CPU"
+echo "Android Version        : $ANDROID_VERSION"
+echo "Kernel Version         : $KERNEL_VERSION"
+echo "KPM Enabled            : $KPM"
+echo "lz4kd Enabled          : $lz4kd"
+echo "BBR Enabled            : $bbr"
+echo "Baseband-Guard Enabled : $bbg"
+echo "Proxy Opts Enabled     : $proxy"
 echo "================================================="
 read -p "Press Enter to begin the build process..."
 clear
