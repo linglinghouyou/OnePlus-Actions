@@ -141,8 +141,6 @@ if [ "$bbg" = "On" ]; then
 fi
 
 # --- Kernel Customization ---
-cd kernel_workspace
-
 # Setup KernelSU Next
 echo "⚡ Setting up KernelSU Next..."
 cd kernel_platform
