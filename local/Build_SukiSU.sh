@@ -72,7 +72,7 @@ echo "✅ All dependencies installed successfully."
 # Set up and improve ccache
 # Generous size for local builds
 echo "⚙️ Setting up ccache..."
-export CCACHE_DIR="$HOME/.ccache_${FEIL}"
+export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
 export CCACHE_NOHASHDIR="true"
 export CCACHE_HARDLINK="true"
