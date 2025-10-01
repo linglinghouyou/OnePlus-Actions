@@ -142,9 +142,6 @@ if [ "$bbg" = "On" ]; then
     cd ../..
 fi
 
-# --- Kernel Customization ---
-cd kernel_workspace
-
 # Setup SukiSU Ultra
 echo "⚡ Setting up SukiSU Ultra..."
 cd kernel_platform
