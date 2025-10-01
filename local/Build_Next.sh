@@ -137,9 +137,8 @@ if [ "$bbg" = "On" ]; then
     cd kernel_workspace/kernel_platform/common
     curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
     bash setup.sh
+    cd ../..
 fi
-cd ..
-# Back to $WORKSPACE
 
 # --- Kernel Customization ---
 cd kernel_workspace
