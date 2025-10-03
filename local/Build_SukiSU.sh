@@ -65,7 +65,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends 
   python3 git curl ccache libelf-dev \
   build-essential flex bison libssl-dev \
   libncurses-dev liblz4-tool zlib1g-dev \
-  libxml2-utils rsync unzip python3-pip
+  libxml2-utils rsync unzip python3-pip gawk
 clear
 echo "✅ All dependencies installed successfully."
 
