@@ -27,6 +27,7 @@ ANDROID_VERSION=$(ask "Enter kernel Android version (android14, android13, andro
 KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
+bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
 proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
@@ -35,13 +36,14 @@ echo ""
 echo "================================================="
 echo "         Configuration Summary"
 echo "================================================="
-echo "Phone Model        : $FEIL"
-echo "CPU                : $CPU"
-echo "Android Version    : $ANDROID_VERSION"
-echo "Kernel Version     : $KERNEL_VERSION"
-echo "lz4kd Enabled      : $lz4kd"
-echo "BBR Enabled        : $bbr"
-echo "Proxy Opts Enabled : $proxy"
+echo "Phone Model            : $FEIL"
+echo "CPU                    : $CPU"
+echo "Android Version        : $ANDROID_VERSION"
+echo "Kernel Version         : $KERNEL_VERSION"
+echo "lz4kd Enabled          : $lz4kd"
+echo "BBR Enabled            : $bbr"
+echo "Baseband-Guard Enabled : $bbg"
+echo "Proxy Opts Enabled     : $proxy"
 echo "================================================="
 read -p "Press Enter to begin the build process..."
 clear
@@ -60,7 +62,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends 
   python3 git curl ccache libelf-dev \
   build-essential flex bison libssl-dev \
   libncurses-dev liblz4-tool zlib1g-dev \
-  libxml2-utils rsync unzip python3-pip
+  libxml2-utils rsync unzip python3-pip gawk
 clear
 echo "✅ All dependencies installed successfully."
 
@@ -129,9 +131,15 @@ echo "✅ Kernel source cloned and configured."
 cd ..
 # Back to $WORKSPACE
 
-# --- Kernel Customization ---
-cd kernel_workspace
+if [ "$bbg" = "On" ]; then
+    set -e
+    cd kernel_workspace/kernel_platform/common
+    curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
+    bash setup.sh
+    cd ../..
+fi
 
+# --- Kernel Customization ---
 # Set up Zram and other patches
 echo "🔧 Setting up SUSFS and applying patches..."
 git clone https://github.com/Xiaomichael/kernel_patches.git
@@ -179,7 +187,13 @@ cd ../..
 echo "⚙️ Configuring kernel build options (defconfig)..."
 DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/configs/gki_defconfig"
 
-if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
+if [ "$bbg" == "On" ]; then
+  echo "📦 Enabling BBG..."
+  cat <<EOT >> "$DEFCONFIG_PATH"
+CONFIG_BBG=y
+CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
+EOT
+fi
 
 if [ "$bbr" = "On" ]; then
   echo "🌐 Enabling BBR..."
