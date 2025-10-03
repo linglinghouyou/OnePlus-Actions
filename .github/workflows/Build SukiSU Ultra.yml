@@ -48,18 +48,6 @@ on:
           - 'oneplus_nord_ce4'
         default: 'oneplus_12'
         
-      CPUD:
-        description: "处理器代号"
-        required: true
-        type: choice
-        options:
-          - 'pineapple'
-          - 'kalama'
-          - 'waipio'
-          - 'crow'
-          - 'blair'
-        default: 'pineapple'
-        
       ANDROID_VERSION:
         description: "KMI安卓版本"
         required: true
