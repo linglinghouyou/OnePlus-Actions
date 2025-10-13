@@ -276,7 +276,7 @@ if [ "$bbg" == "On" ]; then
   echo "📦 Enabling BBG..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_BBG=y
-CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
+CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
 EOT
 fi
 
