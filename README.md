@@ -31,11 +31,6 @@
 
 <img width="318.8" height="500" alt="{2737F086-DBF5-4F52-B98E-2475D8CD4A42}" src="https://github.com/user-attachments/assets/483a4abd-1c09-4421-aa31-a4f97cb1311f" />
 
-### 如何查看处理器代号
-
-![处理器代号查看方法](https://github.com/user-attachments/assets/fc217103-24ef-45fa-a7e1-f13cfd64f771)
-在对应分支下面有写，如果出现的是`using make build`就不用管，默认即可，不影响编译
-
 ## 一些开关建议
 
 - **kpm**：建议禁用以减少电量消耗
@@ -47,4 +42,4 @@
 
 ## 运行时配置示例
 
-<img width="188.5" height="418.5" alt="{1D096FF8-ADC8-44FB-ABB0-B90E6BFD997D}" src="https://github.com/user-attachments/assets/2868dd1b-cb38-48fc-8041-490c5e700baf" />
+<img width="165" height="404" alt="{CC3121ED-84BC-4D10-80F4-AD6EACEFE887}" src="https://github.com/user-attachments/assets/551d798c-e85c-489c-af28-36ce35c35daa" />
