@@ -199,8 +199,8 @@ jobs:
 
       - name: "⬇️ Clone Kernel Source | 克隆内核源码"
         run: |
-          echo "🌐 正在初始化内核仓库..."
           mkdir kernel_workspace && cd kernel_workspace
+          echo "🌐 正在初始化内核仓库..."
          
           repo init -u https://github.com/Xiaomichael/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
           echo "🔄 同步代码库(使用$(nproc --all)线程)..."
@@ -228,13 +228,14 @@ jobs:
         run: |
           set -e
           cd kernel_workspace/kernel_platform/common
+          echo "🛠️ 正在设置BBG..."
           curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
           bash setup.sh     
               
       - name: "⚡ Setup SukiSU Ultra | 配置 SukiSU Ultra"
         run: |
-          echo "🛠️ 正在设置SukiSU Ultra..."
           mkdir -p kernel_workspace/kernel_platform
+          echo "🛠️ 正在设置SukiSU Ultra..."
           
           cd kernel_workspace/kernel_platform
           # 下载并执行设置脚本
@@ -311,9 +312,9 @@ jobs:
 
       - name: "⚙️ Configure Kernel Options | 配置内核选项"
         run: |
-          echo "⚙️ 正在配置内核编译选项..."
-          
           cd kernel_workspace/kernel_platform
+
+          echo "⚙️ 正在配置内核编译选项..."
           
           # Add KSU configuration settings
           echo "📦 启用 Manual Hook..."
@@ -345,7 +346,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           if [ "${{ github.event.inputs.bbg }}" == "On" ] && [ "${{ github.event.inputs.KPM }}" == "Off" ]; then
-            echo "⚡ 启用BBG防格机..."
+            echo "⚡ 启用BBG中..."
             echo 'CONFIG_BBG=y' >> ./common/arch/arm64/configs/gki_defconfig
             echo 'CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"' >> ./common/arch/arm64/configs/gki_defconfig
           fi          
