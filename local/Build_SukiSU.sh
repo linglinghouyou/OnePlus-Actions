@@ -130,7 +130,6 @@ sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/common/scri
 sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
 echo "✅ Kernel source cloned and configured."
-# Back to $WORKSPACE
 
 if [ "$bbg" = "On" ]; then
     set -e
