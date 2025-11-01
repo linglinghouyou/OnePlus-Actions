@@ -29,7 +29,7 @@ KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
 bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
-proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
+proxy=$(ask "Add proxy performance optimization? (if MTK CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
 clear
@@ -266,6 +266,10 @@ CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_SU=n
+CONFIG_KSU_SUSFS_SUS_MAP=y
+# 添加对 Mountify (backslashxx/mountify) 模块的支持
+CONFIG_TMPFS_XATTR=y
+CONFIG_TMPFS_POSIX_ACL=y
 EOT
 
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
@@ -337,6 +341,8 @@ if [ "$KERNEL_VERSION" = "5.10" ] || [ "$KERNEL_VERSION" = "5.15" ]; then
   sed -i 's/^CONFIG_LTO_CLANG_NONE=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG_PATH"
   grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG_PATH" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG_PATH"
 fi
+
+echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
 
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
 echo "✅ Kernel defconfig updated."
@@ -423,6 +429,3 @@ fi
 
 echo "================================================="
 echo ""
-
-echo "📊 Displaying disk statistics:"
-df -h

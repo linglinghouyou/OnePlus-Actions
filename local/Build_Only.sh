@@ -28,7 +28,7 @@ KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
 bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
-proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
+proxy=$(ask "Add proxy performance optimization? (if MTK CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
 clear
@@ -253,6 +253,8 @@ if [ "$KERNEL_VERSION" = "5.10" ] || [ "$KERNEL_VERSION" = "5.15" ]; then
   grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG_PATH" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG_PATH"
 fi
 
+echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
+
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
 echo "✅ Kernel defconfig updated."
 cd ../..
@@ -324,6 +326,3 @@ fi
 
 echo "================================================="
 echo ""
-
-echo "📊 Displaying disk statistics:"
-df -h
