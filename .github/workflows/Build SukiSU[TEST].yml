@@ -217,8 +217,8 @@ jobs:
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
-          curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup.bin
-          chmod +x sukisu_setup.bin
+          curl -L -o sukisu_setup_test.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_test.bin
+          chmod +x sukisu_setup_test.bin
           
           # 验证Makefile存在
           if [ ! -f "kernel/Makefile" ]; then
@@ -227,8 +227,8 @@ jobs:
             exit 1
           fi
           
-          ./sukisu_setup.bin
-          rm -rf ./sukisu_setup.bin
+          ./sukisu_setup_test.bin
+          rm -rf ./sukisu_setup_test.bin
           
           echo "✅ SukiSU Ultra配置完成"
           
