@@ -275,6 +275,10 @@ jobs:
             echo 'CONFIG_BBG=y' >> ./common/arch/arm64/configs/gki_defconfig
             echo 'CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"' >> ./common/arch/arm64/configs/gki_defconfig
           fi
+
+          # 添加对 Mountify (backslashxx/mountify) 模块的支持
+          echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           if [ "${{ github.event.inputs.bbr }}" == "On" ]; then
             echo "🌐 启用BBR网络算法..."
