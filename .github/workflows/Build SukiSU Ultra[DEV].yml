@@ -111,9 +111,9 @@ jobs:
       - name: "⚙️ Setup Cache Env | 设置缓存环境"
         run: |
           echo "🔧 正在设置机型隔离缓存目录..."
-          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test" >> $GITHUB_ENV
-          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test"
-          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test"
+          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev"
+          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev"
 
       - name: "🔐 Configure Git | 配置Git账户"
         run: |
@@ -134,10 +134,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-test
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-dev
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-test
-            ccache-${{ runner.os }}-SukiSU-test
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-dev
+            ccache-${{ runner.os }}-SukiSU-dev
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
@@ -217,7 +217,7 @@ jobs:
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
-          curl -L -o sukisu_setup_test.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_test.bin
+          curl -L -o sukisu_setup_test.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_dev.bin
           chmod +x sukisu_setup_test.bin
           
           # 验证Makefile存在
@@ -301,9 +301,8 @@ jobs:
             echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
           
-          # Add VFS configuration settings
-          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
-          # echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig    
+          # Add inline configuration settings
+          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig  
           
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
