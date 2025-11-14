@@ -1,4 +1,4 @@
-name: Build OnePlus SukiSU Ultra For dev branch
+name: Build SukiSU For DEV Branch
 on:
   workflow_dispatch:
     inputs:
