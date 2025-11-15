@@ -1,4 +1,4 @@
-name: Build SukiSU For DEV Branch
+name: Build SukiSU For DEV Users
 on:
   workflow_dispatch:
     inputs:
