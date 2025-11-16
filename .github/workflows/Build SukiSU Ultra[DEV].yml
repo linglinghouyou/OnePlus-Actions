@@ -9,6 +9,8 @@ on:
         type: choice
         options:
           - 'sm8650'
+          - 'sm8550'
+          - 'sm7675'
         default: 'sm8650'
         
       FEIL:
@@ -22,6 +24,12 @@ on:
           - 'oneplus_13r'
           - 'oneplus_pad2'
           - 'oneplus_pad_pro'
+          - 'oneplus_11'
+          - 'oneplus_12r'
+          - 'oneplus_ace2_pro'
+          - 'oneplus_ace3'
+          - 'oneplus_open'
+          - 'oneplus_ace_3v'
         default: 'oneplus_12'
         
       ANDROID_VERSION:
@@ -30,6 +38,7 @@ on:
         type: choice
         options:
           - 'android14'
+          - 'android13'
         default: 'android14'
         
       KERNEL_VERSION:
@@ -38,6 +47,7 @@ on:
         type: choice
         options:
           - '6.1'
+          - '5.15'
         default: '6.1'
         
       KPM:
@@ -237,7 +247,7 @@ jobs:
           cd kernel_workspace
 
           echo "⬇️ 下载SUSFS补丁..."
-          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}-dev
           git clone https://github.com/Xiaomichael/kernel_patches.git
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           
