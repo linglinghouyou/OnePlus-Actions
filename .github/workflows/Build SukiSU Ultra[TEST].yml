@@ -22,7 +22,7 @@ on:
         default: 'oneplus_13_b'
         
       ANDROID_VERSION:
-        description: "KMI安卓版本"
+        description: "安卓KMI版本"
         required: true
         type: choice
         options:
@@ -47,7 +47,7 @@ on:
        default: 'Off'
        
       lz4kd:
-       description: "是否启用lz4kd (关闭则6.6系启用lz4 + zstd)"
+       description: "是否启用lz4kd(关闭则6.6系启用lz4)"
        required: true
        type: choice
        options:
@@ -56,7 +56,7 @@ on:
        default: 'Off'
        
       bbr:
-       description: "是否启用BBR算法 (优化上行数据, 对手机日用无太大意义甚至可能负优化)"
+       description: "是否启用BBR算法(对手机日用无太大意义甚至可能负优化)"
        required: true
        type: choice
        options:
@@ -65,7 +65,7 @@ on:
        default: 'Off'
 
       bbg:
-        description: "是否添加BBG基带守护"
+        description: "是否启用BBG基带守护"
         required: true
         type: choice
         options:
@@ -74,7 +74,7 @@ on:
         default: 'On'
         
       proxy:
-       description: "是否添加代理性能优化 (联发科芯片跑的时候请关闭否则出现恶性bug)"
+       description: "是否添加代理性能优化(联发科芯片跑的时候请关闭否则出现恶性问题)"
        required: true
        type: choice
        options:
@@ -187,14 +187,12 @@ jobs:
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-kernel/scripts/setlocalversion
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
 
-          echo "✅ 内核配置完成"
-
-      - name: 🔧 Set Kernel name (设置内核名称)
-        run: |
-          cd kernel_workspace/kernel_platform
+          cd kernel_platform
           ESCAPED_SUFFIX=$(printf '%s\n' "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow" | sed 's:[\/&]:\\&:g')
           sudo sed -i "s/-4k/$ESCAPED_SUFFIX/g" ./common/arch/arm64/configs/gki_defconfig
           sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
+
+          echo "✅ 内核配置完成"
 
       # ====================== 内核定制阶段 ======================
 
@@ -264,7 +262,7 @@ jobs:
           cd ./common
           
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
-            echo "📦 应用lz4+zstd补丁..."
+            echo "📦 应用lz4补丁..."
             git apply -p1 < 001-lz4.patch || true
           fi
           
@@ -282,14 +280,14 @@ jobs:
 
           echo "✅ 所有补丁应用完成"
 
-      - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
+      - name: "⚙️ Apply HMBIRD_OGKI to HMBIRD_GKI | OGKI转换GKI"
         run: |
           cd kernel_workspace/kernel_platform/common
           sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
           wget https://github.com/Numbersf/Action-Build/raw/SukiSU-Ultra/patches/hmbird_patch.patch
-          echo "正在打OGKI转换GKI补丁"
+          echo "⚙️ 正在打OGKI转换GKI补丁"
           patch -p1 -F 3 < hmbird_patch.patch
-          echo "OGKI转换GKI_patch完成"
+          echo "✅ OGKI转换GKI_patch完成"
 
       - name: "⚙️ Configure Kernel Options | 配置内核选项"
         run: |
