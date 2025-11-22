@@ -195,6 +195,8 @@ jobs:
           ESCAPED_SUFFIX=$(printf '%s\n' "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow" | sed 's:[\/&]:\\&:g')
           sudo sed -i "s/-4k/$ESCAPED_SUFFIX/g" kernel_platform/common/arch/arm64/configs/gki_defconfig
           sed -i 's/${scm_version}//' kernel_platform/common/scripts/setlocalversion
+          sed -i 's/${scm_version}//' kernel_platform/msm-kernel/scripts/setlocalversion
+          sed -i 's/${scm_version}//' kernel_platform/external/scripts/setlocalversion
 
           echo "✅ 内核配置完成"
 
