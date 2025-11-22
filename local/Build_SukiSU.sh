@@ -7,7 +7,7 @@ clear
 echo "==================================================="
 echo "  SukiSU Ultra OnePlus Kernel Build Configuration  "
 echo "==================================================="
-echo "按回车键可直接使用 [方括号] 中的默认值。"
+echo "  按回车键可直接使用 [方括号] 中的默认值。"
 echo ""
 
 # 带默认值的交互输入函数
@@ -22,11 +22,11 @@ ask() {
 
 # --- 交互输入 ---
 CPU=$(ask "请输入 CPU 分支 (例如: sm8750, sm8650, sm8550, sm8475)" "sm8650")
-FEIL=$(ask "请输入手机型号 (例如: oneplus_12, oneplus_11)" "oneplus_12")
+FEIL=$(ask "请输入手机型号 (例如: oneplus_13_b, oneplus_12, oneplus_11)" "oneplus_12")
 ANDROID_VERSION=$(ask "请输入安卓 KMI 版本 (android15, android14, android13, android12)" "android14")
 KERNEL_VERSION=$(ask "请输入内核版本 (6.6, 6.1, 5.15, 5.10)" "6.1")
 KPM=$(ask "是否启用 KPM (Kernel Patch Manager)? (On/Off)" "Off")
-lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd；6.6 关闭时使用 lz4) (On/Off)" "Off")
+lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4) (On/Off)" "Off")
 bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
 bbg=$(ask "是否启用 Baseband-Guard 基带防护? (On/Off)" "On")
 proxy=$(ask "是否添加代理性能优化? (如为联发科 CPU 必须选择 Off) (On/Off)" "On")
@@ -112,7 +112,6 @@ echo "🔄 正在同步内核源码仓库 (使用 $(nproc --all) 线程)..."
 repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
 
 export adv=$ANDROID_VERSION
-echo "内核版本后缀标识: -$adv-oki-xiaoxiaow"
 echo "🔧 正在清理并修改版本字符串..."
 rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "common 目录下无受保护导出表，无需删除。"
 rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "msm-kernel 目录下无受保护导出表，无需删除。"
@@ -288,6 +287,7 @@ CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_MAP=y
+
 # 为 Mountify (backslashxx/mountify) 模块开启必要选项
 CONFIG_TMPFS_XATTR=y
 CONFIG_TMPFS_POSIX_ACL=y
@@ -388,6 +388,7 @@ if [ "$KERNEL_VERSION" = "6.1" ]; then
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
 elif [ "$KERNEL_VERSION" = "6.6" ]; then
+    export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
 elif [ "$KERNEL_VERSION" = "5.15" ]; then
