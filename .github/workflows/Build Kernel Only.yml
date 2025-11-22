@@ -48,7 +48,7 @@ on:
         default: 'oneplus_12'
         
       ANDROID_VERSION:
-        description: "KMI安卓版本"
+        description: "安卓KMI版本"
         required: true
         type: choice
         options:
@@ -77,7 +77,7 @@ on:
        default: 'Off'
 
       bbg:
-        description: "是否添加BBG防格机模块"
+        description: "是否启用BBG基带保护"
         required: true
         type: choice
         options:
@@ -86,7 +86,7 @@ on:
         default: 'On'
        
       bbr:
-       description: "是否启用bbr算法(优化上行数据, 对手机日用无太大意义甚至可能负优化)"
+       description: "是否启用BBR算法(对手机日用无太大意义甚至可能负优化)"
        required: true
        type: choice
        options:
@@ -95,7 +95,7 @@ on:
        default: 'Off'
 
       proxy:
-       description: "是否添加代理性能优化(MTK芯片跑的时候请关闭否则出现恶性bug)"
+       description: "是否添加代理性能优化(联发科芯片跑的时候请关闭否则出现恶性问题)"
        required: true
        type: choice
        options:
