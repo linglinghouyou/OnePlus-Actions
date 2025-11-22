@@ -1,4 +1,4 @@
-name: Build SukiSU For DEV Users
+name: Build SukiSU For 6.6 test
 on:
   workflow_dispatch:
     inputs:
@@ -8,9 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - 'sm8650'
-          - 'sm8550'
-          - 'sm7675'
+          - 'sm8750'
         default: 'sm8650'
         
       FEIL:
@@ -18,37 +16,26 @@ on:
         required: true
         type: choice
         options:
-          - 'oneplus_12'
-          - 'oneplus_ace3_pro'
-          - 'oneplus_ace5'
-          - 'oneplus_13r'
-          - 'oneplus_pad2'
-          - 'oneplus_pad_pro'
-          - 'oneplus_11'
-          - 'oneplus_12r'
-          - 'oneplus_ace2_pro'
-          - 'oneplus_ace3'
-          - 'oneplus_open'
-          - 'oneplus_ace_3v'
-        default: 'oneplus_12'
+          - 'oneplus_13_b'
+          - 'oneplus_ace5_pro_b'
+          - 'oneplus_ace_6'
+        default: 'oneplus_13_b'
         
       ANDROID_VERSION:
         description: "KMI安卓版本"
         required: true
         type: choice
         options:
-          - 'android14'
-          - 'android13'
-        default: 'android14'
+          - 'android15'
+        default: 'android15'
         
       KERNEL_VERSION:
         description: "内核版本"
         required: true
         type: choice
         options:
-          - '6.1'
-          - '5.15'
-        default: '6.1'
+          - '6.6'
+        default: '6.6'
         
       KPM:
        description: "是否启用KPM"
@@ -60,7 +47,7 @@ on:
        default: 'Off'
        
       lz4kd:
-       description: "是否启用lz4kd(关闭则6.1系启用lz4 + zstd)"
+       description: "是否启用lz4kd (关闭则6.6系启用lz4 + zstd)"
        required: true
        type: choice
        options:
@@ -69,7 +56,7 @@ on:
        default: 'Off'
        
       bbr:
-       description: "是否启用bbr算法(优化上行数据, 对手机日用无太大意义甚至可能负优化)"
+       description: "是否启用BBR算法 (优化上行数据, 对手机日用无太大意义甚至可能负优化)"
        required: true
        type: choice
        options:
@@ -78,7 +65,7 @@ on:
        default: 'Off'
 
       bbg:
-        description: "是否添加BBG防格机模块"
+        description: "是否添加BBG基带守护"
         required: true
         type: choice
         options:
@@ -87,7 +74,7 @@ on:
         default: 'On'
         
       proxy:
-       description: "是否添加代理性能优化(MTK芯片跑的时候请关闭否则出现恶性bug)"
+       description: "是否添加代理性能优化 (联发科芯片跑的时候请关闭否则出现恶性bug)"
        required: true
        type: choice
        options:
@@ -121,9 +108,9 @@ jobs:
       - name: "⚙️ Setup Cache Env | 设置缓存环境"
         run: |
           echo "🔧 正在设置机型隔离缓存目录..."
-          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev" >> $GITHUB_ENV
-          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev"
-          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_dev"
+          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test"
+          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_test"
 
       - name: "🔐 Configure Git | 配置Git账户"
         run: |
@@ -144,10 +131,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-dev
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-test
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-dev
-            ccache-${{ runner.os }}-SukiSU-dev
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-test
+            ccache-${{ runner.os }}-SukiSU-test
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
@@ -200,9 +187,10 @@ jobs:
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-kernel/scripts/setlocalversion
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
 
-          sed -i '$s|echo "\$res"|echo "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion            
-          sed -i '$s|echo "\$res"|echo "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
-          sed -i '$s|echo "\$res"|echo "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
+          for f in ./common/scripts/setlocalversion; do
+            sed -i "\$s|echo \"\\\$res\"|echo \"-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow\"|" "$f"
+          done
+          sudo sed -i 's/-4k/-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow/g' ./common/arch/arm64/configs/gki_defconfig
 
           echo "✅ 内核配置完成"
 
@@ -223,11 +211,11 @@ jobs:
 
           # 下载并执行设置脚本
           echo "🛠️ 正在设置SukiSU Ultra..."
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-test/kernel/setup.sh" | bash -s susfs-test
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
-          curl -L -o sukisu_setup_test.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_dev.bin
+          curl -L -o sukisu_setup_test.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup.bin
           chmod +x sukisu_setup_test.bin
           
           # 验证Makefile存在
@@ -257,7 +245,7 @@ jobs:
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
-          if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
+          if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             cp ../kernel_patches/zram/001-lz4.patch ./common/
             cp ../kernel_patches/zram/lz4armv8.S ./common/lib
             cp ../kernel_patches/zram/002-zstd.patch ./common/
@@ -274,7 +262,7 @@ jobs:
           echo "🔧 应用补丁..."
           cd ./common
           
-          if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
+          if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             echo "📦 应用lz4+zstd补丁..."
             git apply -p1 < 001-lz4.patch || true
             patch -p1 < 002-zstd.patch || true
@@ -293,6 +281,15 @@ jobs:
           patch -p1 -F 3 < 69_hide_stuff.patch
 
           echo "✅ 所有补丁应用完成"
+
+      - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
+        run: |
+          cd kernel_workspace/kernel_platform/common
+          sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
+          wget https://github.com/Numbersf/Action-Build/raw/SukiSU-Ultra/patches/hmbird_patch.patch
+          echo "正在打OGKI转换GKI补丁"
+          patch -p1 -F 3 < hmbird_patch.patch
+          echo "OGKI转换GKI_patch完成"
 
       - name: "⚙️ Configure Kernel Options | 配置内核选项"
         run: |
@@ -356,9 +353,9 @@ jobs:
             echo "CONFIG_ZRAM_WRITEBACK=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
           
-          if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" ]; then
+          if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]; then
             # Add O2 config
-            echo "📦 为6.1加入O2优化..."
+            echo "📦 为6.6加入O2优化..."
             echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
@@ -431,6 +428,13 @@ jobs:
             sudo apt install libelf-dev
             cd kernel_workspace/kernel_platform/common
             make -j$(nproc --all) LLVM_IAS=1 LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all
+
+          elif [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]; then
+            export PATH="/usr/lib/ccache:$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH" 
+            export PATH="/usr/lib/ccache:$PATH"
+            sudo apt install libelf-dev
+            cd kernel_workspace/kernel_platform/common
+            make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2  gki_defconfig all
           fi
           
           # 显示ccache统计信息
@@ -475,7 +479,7 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.lz4kd }}" = "On" ]; then
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4kd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
+          elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4_zstd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
           else
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
