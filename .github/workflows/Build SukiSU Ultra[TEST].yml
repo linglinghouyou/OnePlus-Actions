@@ -187,12 +187,14 @@ jobs:
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-kernel/scripts/setlocalversion
           sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
 
-          for f in ./common/scripts/setlocalversion; do
-            sed -i "\$s|echo \"\\\$res\"|echo \"-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow\"|" "$f"
-          done
-          sudo sed -i 's/-4k/-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow/g' ./common/arch/arm64/configs/gki_defconfig
-
           echo "✅ 内核配置完成"
+
+      - name: 🔧 Set Kernel name (设置内核名称)
+        run: |
+          cd kernel_workspace/kernel_platform
+          ESCAPED_SUFFIX=$(printf '%s\n' "-${{ github.event.inputs.ANDROID_VERSION }}-oki-xiaoxiaow" | sed 's:[\/&]:\\&:g')
+          sudo sed -i "s/-4k/$ESCAPED_SUFFIX/g" ./common/arch/arm64/configs/gki_defconfig
+          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
 
       # ====================== 内核定制阶段 ======================
 
