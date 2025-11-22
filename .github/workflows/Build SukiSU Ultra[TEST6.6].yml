@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - 'sm8750'
+          - 'mt6991'
         default: 'sm8750'
         
       FEIL:
@@ -17,8 +18,13 @@ on:
         type: choice
         options:
           - 'oneplus_13_b'
+          - 'oneplus_13s_b'
+          - 'oneplus_13t_b'
           - 'oneplus_ace5_pro_b'
           - 'oneplus_ace_6'
+          - 'oneplus_pad_2_pro_b'
+          - 'oneplus_pad_3_b'
+          - 'oneplus_ace5_ultra'
         default: 'oneplus_13_b'
         
       ANDROID_VERSION:
