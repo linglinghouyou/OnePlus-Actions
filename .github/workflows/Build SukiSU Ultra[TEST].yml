@@ -250,7 +250,6 @@ jobs:
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             cp ../kernel_patches/zram/001-lz4.patch ./common/
             cp ../kernel_patches/zram/lz4armv8.S ./common/lib
-            cp ../kernel_patches/zram/002-zstd.patch ./common/
           fi
           
           if [ "${{ github.event.inputs.lz4kd }}" == "On" ]; then
@@ -267,7 +266,6 @@ jobs:
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             echo "📦 应用lz4+zstd补丁..."
             git apply -p1 < 001-lz4.patch || true
-            patch -p1 < 002-zstd.patch || true
           fi
           
           if [ "${{ github.event.inputs.lz4kd }}" == "On" ]; then
