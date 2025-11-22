@@ -23,10 +23,10 @@ ask() {
 # --- Interactive Inputs ---
 CPU=$(ask "Enter CPU branch (e.g., sm8650, sm8550, sm8475)" "sm8650")
 FEIL=$(ask "Enter phone model (e.g., oneplus_12, oneplus_11)" "oneplus_12")
-ANDROID_VERSION=$(ask "Enter kernel Android version (android14, android13, android12)" "android14")
-KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
+ANDROID_VERSION=$(ask "Enter kernel Android version (android15, android14, android13, android12)" "android14")
+KERNEL_VERSION=$(ask "Enter kernel version (6.6, 6.1, 5.15, 5.10)" "6.1")
 KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
-lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
+lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off; 6.6 uses lz4 only if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
 bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
 proxy=$(ask "Add proxy performance optimization? (if MTK CPU must be Off!)  (On/Off)" "On")
@@ -69,7 +69,6 @@ clear
 echo "✅ All dependencies installed successfully."
 
 # Set up and improve ccache
-# Generous size for local builds
 echo "⚙️ Setting up ccache..."
 export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -81,7 +80,6 @@ mkdir -p "$CCACHE_DIR"
 echo "✅ ccache directory set to: $CCACHE_DIR"
 ccache -M "$CCACHE_MAXSIZE"
 ccache -z
-# Clear statistics for a clean run summary
 
 # Configure Git for repo tool
 echo "🔐 Configuring Git user info..."
@@ -104,7 +102,6 @@ fi
 
 # Clone Kernel Source
 echo "⬇️ Cloning kernel source code..."
-# If the directory already exists from a previous failed run, remove it for a clean start
 sudo rm -rf kernel_workspace
 mkdir -p kernel_workspace && cd kernel_workspace
 
@@ -120,18 +117,29 @@ echo "🔧 Cleaning up and modifying version strings..."
 rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports to remove from common!"
 rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports to remove from msm-kernel!"
 
+# Remove -dirty and sanitize setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/external/dtc/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/common/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
+
+if [ "$KERNEL_VERSION" != "6.6" ]; then
+  # Old behavior for 6.1 / 5.15 / 5.10
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
+else
+  ESCAPED_SUFFIX=$(printf '%s\n' "-${ANDROID_VERSION}-oki-xiaoxiaow" | sed 's:[\/&]:\\&:g')
+  sed -i "s/-4k/${ESCAPED_SUFFIX}/g" kernel_platform/common/arch/arm64/configs/gki_defconfig
+  sed -i 's/\${scm_version}//' kernel_platform/common/scripts/setlocalversion
+  sed -i 's/\${scm_version}//' kernel_platform/msm-kernel/scripts/setlocalversion
+fi
+
 echo "✅ Kernel source cloned and configured."
 
-if [ "$bbg" = "On" ]; then
+if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
     set -e
     cd kernel_platform/common
     curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
@@ -145,7 +153,7 @@ echo "⚡ Setting up SukiSU Ultra..."
 cd kernel_platform
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
 
-# Get KSU Version info
+# 获取并注入 KSU 版本信息
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
@@ -203,12 +211,9 @@ cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
-  echo "📦 Copying lz4+zstd patches..."
-  cp ../kernel_patches/zram/001-lz4.patch ./common/
-  cp ../kernel_patches/zram/lz4armv8.S ./common/lib
-  cp ../kernel_patches/zram/002-zstd.patch ./common/
-fi
+cp ../kernel_patches/zram/001-lz4.patch ./common/
+cp ../kernel_patches/zram/lz4armv8.S ./common/lib
+cp ../kernel_patches/zram/002-zstd.patch ./common/
 
 if [ "$lz4kd" = "On" ]; then
   echo "🚀 Copying lz4kd patches..."
@@ -225,10 +230,17 @@ cp ../../kernel_patches/69_hide_stuff.patch ./
 patch -p1 -F 3 < 69_hide_stuff.patch || true
 patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch || true
 
+# 6.1：lz4 + zstd
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
-  echo "📦 Applying lz4+zstd patches..."
+  echo "📦 Applying lz4+zstd patches for 6.1..."
   git apply 001-lz4.patch || true
   patch -p1 < 002-zstd.patch || true
+fi
+
+# 6.6：仅 lz4
+if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.6" ]; then
+  echo "📦 Applying lz4 patch for 6.6..."
+  git apply 001-lz4.patch || true
 fi
 
 if [ "$lz4kd" = "On" ]; then
@@ -241,6 +253,17 @@ fi
 echo "✅ All patches applied."
 cd ../..
 # Back to $WORKSPACE/kernel_workspace
+
+# 6.6 专用 HMBIRD OGKI → GKI 补丁
+if [ "$KERNEL_VERSION" = "6.6" ]; then
+  echo "⚙️ Applying HMBIRD OGKI→GKI patch..."
+  cd kernel_platform/common
+  sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
+  wget https://github.com/Numbersf/Action-Build/raw/SukiSU-Ultra/patches/hmbird_patch.patch
+  patch -p1 -F 3 < hmbird_patch.patch || true
+  echo "✅ HMBIRD OGKI→GKI patch applied."
+  cd ../..
+fi
 
 # Configure Kernel Options
 echo "⚙️ Configuring kernel build options (defconfig)..."
@@ -265,7 +288,6 @@ CONFIG_KSU_SUSFS_ENABLE_LOG=y
 CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-CONFIG_KSU_SUSFS_SUS_SU=n
 CONFIG_KSU_SUSFS_SUS_MAP=y
 # 添加对 Mountify (backslashxx/mountify) 模块的支持
 CONFIG_TMPFS_XATTR=y
@@ -274,7 +296,7 @@ EOT
 
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
 
-if [ "$bbg" == "On" ]; then
+if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
   echo "📦 Enabling BBG..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_BBG=y
@@ -303,7 +325,10 @@ CONFIG_ZRAM_WRITEBACK=y
 EOT
 fi
 
-if [ "$KERNEL_VERSION" = "6.1" ]; then echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> "$DEFCONFIG_PATH"; fi
+# 6.1 & 6.6 都加 O2 性能优化
+if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
+  echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> "$DEFCONFIG_PATH"
+fi
 
 if [ "$proxy" = "On" ]; then
   echo "📦 Adding proxy optimizations..."
@@ -361,6 +386,9 @@ if [ "$KERNEL_VERSION" = "6.1" ]; then
     export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
+elif [ "$KERNEL_VERSION" = "6.6" ]; then
+    export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+    eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
 elif [ "$KERNEL_VERSION" = "5.15" ]; then
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r450784e/bin:$PATH"
     eval "$MAKE_CMD_COMMON"
@@ -400,12 +428,14 @@ if [ "$KPM" = 'On' ]; then
     echo "✅ KPM patch applied."
 fi
 
-# --- Finalize and Upload ---
+# --- Finalize and Output ---
 
 if [ "$lz4kd" = "On" ]; then
   ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_lz4kd_${KSUVER}"
 elif [ "$KERNEL_VERSION" = "6.1" ]; then
   ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_lz4_zstd_${KSUVER}"
+elif [ "$KERNEL_VERSION" = "6.6" ]; then
+  ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_lz4_${KSUVER}"
 else
   ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_${KSUVER}"
 fi
