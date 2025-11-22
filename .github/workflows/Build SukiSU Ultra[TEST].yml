@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - 'sm8750'
-        default: 'sm8650'
+        default: 'sm8750'
         
       FEIL:
         description: "手机型号"
