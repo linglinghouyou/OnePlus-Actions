@@ -209,7 +209,6 @@ git clone https://github.com/ShirkNeko/SukiSU_patch.git
 cd kernel_platform
 echo "📝 正在复制补丁文件..."
 cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
@@ -230,7 +229,6 @@ cd ./common
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 cp ../../kernel_patches/69_hide_stuff.patch ./
 patch -p1 -F 3 < 69_hide_stuff.patch || true
-patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch || true
 
 # 6.1：应用 lz4 + zstd 补丁
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
@@ -275,7 +273,6 @@ cat <<EOT >> "$DEFCONFIG_PATH"
 
 #--- SukiSU Ultra & SUSFS 自定义配置 ---
 CONFIG_KSU=y
-CONFIG_KSU_MANUAL_HOOK=y
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
 CONFIG_KSU_SUSFS_SUS_MOUNT=y
