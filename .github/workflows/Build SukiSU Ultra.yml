@@ -565,7 +565,7 @@ jobs:
         # if: ${{ github.event.inputs.lz4kd == 'On' }}
         uses: actions/upload-artifact@v4
         with:
-          name: zram.ko
+          name: ${{ github.event.inputs.FEIL }}_zram.ko
           path: ./kernel_workspace/kernel_platform/common/out/drivers/block/zram/zram.ko
 
       - name: "🤖 Get bot script | 获取 bot 脚本"
