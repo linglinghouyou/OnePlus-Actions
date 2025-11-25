@@ -538,8 +538,8 @@ jobs:
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4kd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4_zstd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
-            echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+            elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
+              echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
           else
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
           fi
