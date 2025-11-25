@@ -55,7 +55,7 @@ on:
           - 'oneplus_ace_3v'
           - 'onrplus_nord_4'
           - 'oneplus_nord_ce4_lite_5g'
-        default: 'oneplus_12'
+        default: 'oneplus_12_b'
         
       ANDROID_VERSION:
         description: "安卓KMI版本"
