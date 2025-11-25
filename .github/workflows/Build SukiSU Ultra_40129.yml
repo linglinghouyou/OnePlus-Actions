@@ -1,4 +1,4 @@
-name: Build OnePlus SukiSU Ultra release
+name: Build OnePlus SukiSU Ultra 稳定版(40129)
 on:
   workflow_dispatch:
     inputs:
@@ -264,7 +264,7 @@ jobs:
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
-          curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_release.bin
+          curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_40129.bin
           chmod +x sukisu_setup.bin
           
           # 验证Makefile存在
