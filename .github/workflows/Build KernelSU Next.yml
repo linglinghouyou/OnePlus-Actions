@@ -80,7 +80,7 @@ on:
         default: '6.1'
 
       lz4kd:
-       description: "是否启用lz4kd(关闭则6.1系启用lz4 + zstd)"
+       description: "是否启用lz4kd(6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4)"
        required: true
        type: choice
        options:
@@ -128,7 +128,7 @@ jobs:
     steps:
       # ====================== 系统初始化阶段 ======================
       - name: "🚀 Maximize Build Space | 最大化构建空间"
-        if: ${{ github.event.inputs.KERNEL_VERSION != '6.1' }}
+        if: ${{ github.event.inputs.KERNEL_VERSION == '5.10' || github.event.inputs.KERNEL_VERSION == '5.15' }}
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
