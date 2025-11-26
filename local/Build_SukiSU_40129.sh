@@ -4,9 +4,9 @@ set -e
 
 # --- 构建配置阶段 ---
 clear
-echo "==================================================="
-echo "  SukiSU Ultra OnePlus Kernel Build Configuration  "
-echo "==================================================="
+echo "==========================================================="
+echo "  SukiSU Ultra [40129] OnePlus Kernel Build Configuration  "
+echo "==========================================================="
 echo "  按回车键可直接使用 [方括号] 中的默认值。"
 echo ""
 
@@ -70,7 +70,7 @@ echo "✅ 必要构建依赖安装完成。"
 
 # 配置并优化 ccache
 echo "⚙️ 正在配置 ccache 缓存..."
-export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
+export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU_40129"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
 export CCACHE_NOHASHDIR="true"
 export CCACHE_HARDLINK="true"
@@ -203,16 +203,16 @@ cd ../..
 # 准备 SUSFS 及其他补丁
 echo "🔧 正在下载 SUSFS 及相关补丁..."
 git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
-if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" ]; then
+if [ "$KERNEL_VERSION" == "6.1" ]; then
     cd susfs4ksu && git checkout a5ab34511ea2eae51c48fff18c87adbdeb11cf2c && cd ..
 fi
-if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]; then
+if [ "$KERNEL_VERSION" == "6.6" ]; then
     cd susfs4ksu && git checkout 1aa525d29e13ff04f0e438bb2cc1afd645302e95 && cd ..
 fi
-if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "5.15" ]; then
+if [ "$KERNEL_VERSION" == "5.15" ]; then
     cd susfs4ksu && git checkout 125374c5e90af4ca81a63985c8894861b7f11fcf && cd ..
 fi     
-if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "5.10" ]; then
+if [ "$KERNEL_VERSION" == "5.10" ]; then
     cd susfs4ksu && git checkout 3b74d50936b03a3fcaef0a5e9b01fbdf7fc1124e && cd ..
 fi
 git clone https://github.com/Xiaomichael/kernel_patches.git
@@ -302,28 +302,18 @@ CONFIG_KSU=y
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
 CONFIG_KSU_SUSFS_SUS_MOUNT=y
+CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
+CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
 CONFIG_KSU_SUSFS_SUS_KSTAT=y
+CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n
+CONFIG_KSU_SUSFS_TRY_UMOUNT=y
+CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
 CONFIG_KSU_SUSFS_SPOOF_UNAME=y
 CONFIG_KSU_SUSFS_ENABLE_LOG=y
 CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_MAP=y
-          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
 
 # 为 Mountify (backslashxx/mountify) 模块开启必要选项
 CONFIG_TMPFS_XATTR=y

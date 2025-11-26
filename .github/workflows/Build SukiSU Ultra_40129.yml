@@ -150,9 +150,9 @@ jobs:
       - name: "⚙️ Setup Cache Env | 设置缓存环境"
         run: |
           echo "🔧 正在设置机型隔离缓存目录..."
-          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_release" >> $GITHUB_ENV
-          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_release"
-          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_release"
+          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_40129" >> $GITHUB_ENV
+          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_40129"
+          echo "✅ 缓存目录已设置: $HOME/.ccache_${{ github.event.inputs.FEIL }}_SukiSU_40129"
 
       - name: "🔐 Configure Git | 配置Git账户"
         run: |
@@ -173,10 +173,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-release
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-40129
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-release
-            ccache-${{ runner.os }}-SukiSU-release
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-40129
+            ccache-${{ runner.os }}-SukiSU-40129
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
