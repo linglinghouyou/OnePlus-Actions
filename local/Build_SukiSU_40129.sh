@@ -239,8 +239,6 @@ fi
 echo "🔧 正在应用补丁..."
 cd ./common
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
-cp ../../kernel_patches/69_hide_stuff.patch ./
-patch -p1 -F 3 < 69_hide_stuff.patch || true
 
 # 6.1：应用 lz4 + zstd 补丁
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
@@ -281,7 +279,7 @@ if [ "$KERNEL_VERSION" = "6.6" ]; then
     patch -p1 -F 3 < "fengchi_$FEIL.patch"
     echo "✅ 完美风驰补丁应用完成"
   else
-    echo "⚠️ 该6.6机型暂不支持风驰补丁，正在应用OGKI转GKI补丁"
+    echo "⚠️ 该6.6机型暂不支持风驰补丁, 正在应用OGKI转GKI补丁"
     sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
     wget https://github.com/Numbersf/Action-Build/raw/SukiSU-Ultra/patches/hmbird_patch.patch
     echo "⚙️ 正在打OGKI转换GKI补丁"
