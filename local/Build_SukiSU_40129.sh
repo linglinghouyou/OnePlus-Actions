@@ -58,7 +58,7 @@ mkdir -p "$WORKSPACE"
 cd "$WORKSPACE"
 
 # 在使用依赖前先安装
-echo "📦 正在安装构建依赖(需要 sudo 权限)..."
+echo "📦 正在安装构建依赖..."
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
   python3 git curl ccache libelf-dev \
@@ -85,7 +85,7 @@ ccache -z
 echo "🔐 正在配置 Git 用户信息..."
 git config --global user.name "Local Builder"
 git config --global user.email "builder@localhost"
-echo "✅ Git 用户信息配置完成。"
+echo "✅ Git 用户信息配置完成"
 
 # --- 源码及工具准备 ---
 
@@ -95,9 +95,9 @@ if ! command -v repo &> /dev/null; then
     curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
     chmod a+x ~/repo
     sudo mv ~/repo /usr/local/bin/repo
-    echo "✅ repo 工具安装完成。"
+    echo "✅ repo 工具安装完成"
 else
-    echo "ℹ️ 已检测到 repo 工具，跳过安装。"
+    echo "ℹ️ 已检测到 repo 工具，跳过安装"
 fi
 
 # 克隆内核源码
@@ -110,13 +110,13 @@ repo init -u https://github.com/Xiaomichael/kernel_manifest.git -b refs/heads/on
 
 echo "🔄 正在同步内核源码仓库 (使用 $(nproc --all) 线程)..."
 repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+echo "✅ 内核源码同步完成"
 
 export adv=$ANDROID_VERSION
 echo "🔧 正在清理并修改版本字符串..."
 rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "common 目录下无受保护导出表，无需删除。"
 rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "msm-kernel 目录下无受保护导出表，无需删除。"
 
-# 去除 -dirty 并清理 setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/external/dtc/scripts/setlocalversion
@@ -125,7 +125,6 @@ sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-ker
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
 
 if [ "$KERNEL_VERSION" != "6.6" ]; then
-  # 6.1 / 5.15 / 5.10 延续旧的版本后缀拼接方式
   sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
   sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
   sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
@@ -136,7 +135,7 @@ else
   sed -i 's/\${scm_version}//' kernel_platform/msm-kernel/scripts/setlocalversion
 fi
 
-echo "✅ 内核仓库准备完毕并完成版本号清理。"
+echo "✅ 内核仓库准备完毕并完成版本号清理"
 
 if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
     set -e
@@ -145,7 +144,7 @@ if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
     curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
     bash setup.sh
     cd ../..
-    echo "✅ Baseband-Guard 配置完成。"
+    echo "✅ Baseband-Guard 配置完成"
 fi
 
 # --- 内核个性化定制 ---
@@ -201,7 +200,7 @@ cd ../..
 # 回到 $WORKSPACE/kernel_workspace
 
 # 准备 SUSFS 及其他补丁
-echo "🔧 正在下载 SUSFS 及相关补丁..."
+echo "🔧 正在克隆所需补丁..."
 git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
 if [ "$KERNEL_VERSION" == "6.1" ]; then
     cd susfs4ksu && git checkout a5ab34511ea2eae51c48fff18c87adbdeb11cf2c && cd ..
@@ -254,7 +253,7 @@ if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.6" ]; then
 fi
 
 if [ "$lz4kd" = "On" ]; then
-  echo "🚀 正在应用 lz4kd / lz4k_oplus 补丁..."
+  echo "📦 正在应用 lz4kd / lz4k_oplus 补丁..."
   cp ../../SukiSU_patch/other/zram/zram_patch/${KERNEL_VERSION}/lz4kd.patch ./
   patch -p1 -F 3 < lz4kd.patch || true
   cp ../../SukiSU_patch/other/zram/zram_patch/${KERNEL_VERSION}/lz4k_oplus.patch ./
@@ -262,17 +261,19 @@ if [ "$lz4kd" = "On" ]; then
 fi
 echo "✅ 所有补丁应用完成。"
 cd ../..
-# 回到 $WORKSPACE/kernel_workspace
 
-# 6.6 专用 风驰补丁 or OGKI 转 GKI补丁
 if [ "$KERNEL_VERSION" = "6.6" ]; then
   echo "⬇️ 正在拉取风驰补丁"
   if [ "$FEIL" = "oneplus_ace5_ultra" ]; then
+      echo "⚠️ Ace5 Ultra 需要使用 mt6991 分支的补丁"
       git clone https://github.com/Numbersf/SCHED_PATCH.git -b "mt6991"
   else
+      echo "⚙️ 使用 sm8750 分支的补丁"
       git clone https://github.com/Numbersf/SCHED_PATCH.git -b "sm8750"
   fi
+
   cp ./SCHED_PATCH/fengchi_$FEIL.patch ./
+
   if [[ -f "fengchi_$FEIL.patch" ]]; then
     echo "⚙️ 开始应用风驰补丁"
     dos2unix "fengchi_$FEIL.patch"
@@ -289,13 +290,12 @@ if [ "$KERNEL_VERSION" = "6.6" ]; then
   cd ../..
 fi
 
-# 配置内核编译选项（defconfig）
-echo "⚙️ 正在配置内核编译选项 (defconfig)..."
+echo "⚙️ 正在配置内核编译选项..."
 DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/configs/gki_defconfig"
 
 cat <<EOT >> "$DEFCONFIG_PATH"
 
-#--- SukiSU Ultra & SUSFS 自定义配置 ---
+#--- SukiSU Ultra & SUSFS 配置 ---
 CONFIG_KSU=y
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
@@ -321,7 +321,7 @@ EOT
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
 
 if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
-  echo "📦 在 defconfig 中启用 BBG..."
+  echo "⚡ 配置 BBG 中..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_BBG=y
 CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
@@ -329,7 +329,7 @@ EOT
 fi
 
 if [ "$bbr" = "On" ]; then
-  echo "🌐 在 defconfig 中启用 BBR 拥塞控制..."
+  echo "🌐 启用 BBR 网络算法..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_TCP_CONG_ADVANCED=y
 CONFIG_TCP_CONG_BBR=y
@@ -341,7 +341,7 @@ EOT
 fi
 
 if [ "$lz4kd" = "On" ]; then
-  echo "📦 在 defconfig 中启用 lz4kd 与写回支持..."
+  echo "📦 启用 lz4kd 与 写回支持..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_CRYPTO_LZ4KD=y
 CONFIG_CRYPTO_LZ4K_OPLUS=y
@@ -349,13 +349,12 @@ CONFIG_ZRAM_WRITEBACK=y
 EOT
 fi
 
-# 6.1 & 6.6：开启性能优化 O2
 if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
   echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> "$DEFCONFIG_PATH"
 fi
 
 if [ "$proxy" = "On" ]; then
-  echo "📦 在 defconfig 中添加代理相关网络优化选项..."
+  echo "📦 添加代理相关网络优化选项..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_BPF_STREAM_PARSER=y
 CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y
@@ -391,14 +390,12 @@ if [ "$KERNEL_VERSION" = "5.10" ] || [ "$KERNEL_VERSION" = "5.15" ]; then
   grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG_PATH" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG_PATH"
 fi
 
-# 跳过安装 uapi 头文件，节省时间
 echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
 
-# 移除多余的 check_defconfig 步骤
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
+
 echo "✅ defconfig 配置更新完成。"
 cd ../..
-# 回到 $WORKSPACE
 
 # --- 编译与打包 ---
 
