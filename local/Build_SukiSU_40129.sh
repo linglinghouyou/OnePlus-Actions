@@ -266,7 +266,7 @@ cd ../..
 
 # 6.6 专用 风驰补丁 or OGKI 转 GKI补丁
 if [ "$KERNEL_VERSION" = "6.6" ]; then
-  echo "正在拉取风驰补丁"
+  echo "⬇️ 正在拉取风驰补丁"
   if [ "$FEIL" = "oneplus_ace5_ultra" ]; then
       git clone https://github.com/Numbersf/SCHED_PATCH.git -b "mt6991"
   else
