@@ -1,16 +1,16 @@
 # ⭐⭐⭐ Star This Project ⭐⭐⭐
 
-如果您觉得这个项目对您有帮助，请给我们一个 star / 进行赞助！您的支持是我们持续改进的动力
+如果您觉得这个项目对您有帮助，请给我们一个 star / 进行赞助！您的支持是我持续改进的动力，如果有问题欢迎提交issue！
 
 <img width="250" height="250" alt="image" src="https://github.com/user-attachments/assets/55acad97-8fe6-4de7-b9ce-90da9552a212" />
 
-## OnePlus Kernel 开源地址
+## OnePlus 开源地址
 
 [![OnePlus Repository](https://img.shields.io/badge/OnePlus-Repository-red)](https://github.com/Xiaomichael/kernel_manifest)
 
 ## 设备支持
 
-支持欧加真5.10-6.6内核的设备
+支持欧加真5.10-6.6内核的设备[跑出来内核版本号一样就可以用]
 
 ## 使用指南
 
@@ -22,24 +22,21 @@
 - `_u` 后缀：ColorOS 14
 - `_t` 后缀：ColorOS 13
 
-![配置文件示例](https://github.com/user-attachments/assets/88f6940b-4b2c-462f-b8fa-3d9dd2f2faec)
+<img width="1122" height="257" alt="image" src="https://github.com/user-attachments/assets/24631b01-ec9d-4f77-a764-476cfe522537" />
 
 ### 分支选择
 
 1. 点击 `Branches` 切换处理器分支
-2. 选择适合您设备的配置
+2. 选择适合您设备的配置[如下图，如果找不到代号名称去网上搜搜]
 
-<img width="318.8" height="500" alt="{2737F086-DBF5-4F52-B98E-2475D8CD4A42}" src="https://github.com/user-attachments/assets/483a4abd-1c09-4421-aa31-a4f97cb1311f" />
+<img width="219" height="488" alt="image" src="https://github.com/user-attachments/assets/a62811aa-357d-4645-830c-002e7a7f6e03" />
 
-## 一些开关建议
+## 配置开关建议
 
-- **kpm**：建议禁用以减少电量消耗
+- **kpm选项**：建议禁用以减少电量消耗，挂🐕去④
 - **lz4kd**：
-  - 6.1系列内核：建议关闭以获得更好的 `lz4 + zstd`
+  - 6.1系列内核：建议关闭该选项以获得更好的 `lz4 + zstd` 压缩方式
+  - 6.6系内核：建议关闭该选项以获得更好的 `lz4` 压缩方式
   - 其他内核版本：建议保持开启
-- **代理优化**: 骁龙系可以开，联发科芯片勿开，否则出现恶性Bug！
-- **BBG防格机**: 当然推荐开启，看名字就知道是干啥的
-
-## 运行时配置示例
-
-<img width="165" height="404" alt="{CC3121ED-84BC-4D10-80F4-AD6EACEFE887}" src="https://github.com/user-attachments/assets/551d798c-e85c-489c-af28-36ce35c35daa" />
+- **代理优化**: 骁龙芯片可以开，联发科芯片千万不要开，否则出现恶性Bug！
+- **BBG基带守护**: 当然推荐开启，看名字就知道是干啥的
