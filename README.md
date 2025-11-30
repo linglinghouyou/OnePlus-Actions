@@ -17,9 +17,10 @@
 ### 配置文件说明
 
 以**一加12**为例：
-- 无后缀：Android 15
-- `_u` 后缀：Android 14
-- `_t` 后缀：Android 13
+- `_b` 后缀：ColorOS 16
+- `_v` 后缀：ColorOS 15
+- `_u` 后缀：ColorOS 14
+- `_t` 后缀：ColorOS 13
 
 ![配置文件示例](https://github.com/user-attachments/assets/88f6940b-4b2c-462f-b8fa-3d9dd2f2faec)
 
