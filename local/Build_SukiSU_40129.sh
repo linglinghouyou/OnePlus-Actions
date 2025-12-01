@@ -7,7 +7,7 @@ clear
 echo "==========================================================="
 echo "  SukiSU Ultra [40129] OnePlus Kernel Build Configuration  "
 echo "==========================================================="
-echo "  按回车键可直接使用 [方括号] 中的默认值。"
+echo "  按回车键可直接使用 [方括号] 中的默认值"
 echo ""
 
 # 带默认值的交互输入函数
@@ -66,7 +66,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends 
   libncurses-dev liblz4-tool zlib1g-dev \
   libxml2-utils rsync unzip python3-pip gawk dos2unix
 clear
-echo "✅ 必要构建依赖安装完成。"
+echo "✅ 必要构建依赖安装完成"
 
 # 配置并优化 ccache
 echo "⚙️ 正在配置 ccache 缓存..."
@@ -114,8 +114,8 @@ echo "✅ 内核源码同步完成"
 
 export adv=$ANDROID_VERSION
 echo "🔧 正在清理并修改版本字符串..."
-rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "common 目录下无受保护导出表，无需删除。"
-rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "msm-kernel 目录下无受保护导出表，无需删除。"
+rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "common 目录下无受保护导出表，无需删除"
+rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "msm-kernel 目录下无受保护导出表，无需删除"
 
 sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
 sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
@@ -195,7 +195,7 @@ EOF
 done < kernel/Makefile
 mv "$TMP_FILE" kernel/Makefile
 
-echo "✅ SukiSU Ultra 版本信息配置完成。"
+echo "✅ SukiSU Ultra 版本信息配置完成"
 cd ../..
 # 回到 $WORKSPACE/kernel_workspace
 
@@ -259,7 +259,7 @@ if [ "$lz4kd" = "On" ]; then
   cp ../../SukiSU_patch/other/zram/zram_patch/${KERNEL_VERSION}/lz4k_oplus.patch ./
   patch -p1 -F 3 < lz4k_oplus.patch || true
 fi
-echo "✅ 所有补丁应用完成。"
+echo "✅ 所有补丁应用完成"
 cd ../..
 
 if [ "$KERNEL_VERSION" = "6.6" ]; then
@@ -394,7 +394,7 @@ echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
 
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
 
-echo "✅ defconfig 配置更新完成。"
+echo "✅ defconfig 配置更新完成"
 cd ../..
 
 # --- 编译与打包 ---
@@ -425,7 +425,7 @@ fi
 
 echo "📊 当前 ccache 统计信息如下:"
 ccache -s
-echo "✅ 内核编译完成。"
+echo "✅ 内核编译完成"
 cd "$WORKSPACE"
 
 # 使用 AnyKernel3 进行打包
@@ -449,7 +449,7 @@ if [ "$KPM" = 'On' ]; then
     ./patch_linux
     mv oImage "$WORKSPACE/AnyKernel3/Image"
     cd .. && rm -rf kpm_patch_temp
-    echo "✅ KPM 补丁应用完成。"
+    echo "✅ KPM 补丁应用完成"
 fi
 
 # --- 构建结果输出 ---
