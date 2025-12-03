@@ -390,7 +390,7 @@ jobs:
             echo "CONFIG_ZRAM_WRITEBACK=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
-          if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" || [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]]; then
+          if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" ] || [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]; then
             # Add O2 config
             echo "📦 为6.1&6.6加入O2优化..."
             echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> ./common/arch/arm64/configs/gki_defconfig
