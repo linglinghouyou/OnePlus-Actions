@@ -153,13 +153,13 @@ echo "⚡ 正在配置 SukiSU Ultra..."
 cd kernel_platform
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
 
-# 获取 KSU 版本信息并写入 Makefile
+# 获取 KSU 版本信息并写入 Kbuild
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
 
 for i in {1..3}; do
-  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/Makefile" | \
+  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/Kbuild" | \
     grep -m1 "KSU_VERSION_API :=" | cut -d'=' -f2 | tr -d '[:space:]')
   [ -n "$KSU_API_VERSION" ] && break || sleep 2
 done
@@ -173,9 +173,9 @@ KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git
 KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow"
 
 # 删除旧的 KSU 版本定义
-sed -i '/define get_ksu_version_full/,/endef/d' kernel/Makefile
-sed -i '/KSU_VERSION_API :=/d' kernel/Makefile
-sed -i '/KSU_VERSION_FULL :=/d' kernel/Makefile
+sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
+sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
+sed -i '/KSU_VERSION_FULL :=/d' kernel/Kbuild
 
 # 在 REPO_OWNER := 后插入新的 KSU 版本定义
 TMP_FILE=$(mktemp)
@@ -191,8 +191,8 @@ KSU_VERSION_API := ${KSU_API_VERSION}
 KSU_VERSION_FULL := ${KSU_VERSION_FULL}
 EOF
   fi
-done < kernel/Makefile
-mv "$TMP_FILE" kernel/Makefile
+done < kernel/Kbuild
+mv "$TMP_FILE" kernel/Kbuild
 
 echo "✅ SukiSU Ultra 版本信息配置完成"
 cd ../..
