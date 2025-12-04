@@ -42,11 +42,11 @@ on:
           - 'oneplus_pad_pro_v'
           - 'oneplus_ace5_race'
           - 'oneplus_nord_5'
-          - 'oneplus_11'
-          - 'oneplus_12r'
-          - 'oneplus_ace2_pro'
+          - 'oneplus_11_b'
+          - 'oneplus_12r_b'
+          - 'oneplus_ace2_pro_v'
           - 'oneplus_ace3_b'
-          - 'oneplus_open'
+          - 'oneplus_open_b'
           - 'oneplus_10t'
           - 'oneplus_11r'
           - 'oneplus_ace2'
@@ -269,6 +269,22 @@ jobs:
           cd kernel_platform
           echo "📝 复制补丁文件..."
           cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
+          PATCH_FILE="./KernelSU/10_enable_susfs_for_ksu.patch"
+          if [ -f "$PATCH_FILE" ]; then
+            if grep -q "a/kernel/Makefile" "$PATCH_FILE"; then
+              echo "检测到旧版 Makefile 补丁代码，正在执行修复..."
+              sed -i 's|kernel/Makefile|kernel/Kbuild|g' "$PATCH_FILE"
+              sed -i 's|.*compdb.*|@@ -75,4 +75,13 @@ ccflags-y += -DEXPECTED_HASH=\\"$(KSU_EXPECTED_HASH)\\"|' "$PATCH_FILE"
+              sed -i 's|^ clean:| ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes|' "$PATCH_FILE"
+              sed -i 's|.*make -C.*| ccflags-y += -Wno-declaration-after-statement -Wno-unused-function|' "$PATCH_FILE"
+              echo "补丁修复完成！"
+            else
+              echo "补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
+            fi
+          else
+            echo "未找到KSU补丁！"
+            exit 1
+          fi
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
