@@ -262,7 +262,7 @@ jobs:
 
           # 下载并执行设置脚本
           echo "🛠️ 正在设置SukiSU Ultra..."
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
