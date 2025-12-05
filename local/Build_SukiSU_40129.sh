@@ -151,7 +151,7 @@ fi
 # 配置 SukiSU Ultra
 echo "⚡ 正在配置 SukiSU Ultra..."
 cd kernel_platform
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
+curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
 cd KernelSU && git checkout f1909411c0c3b464336967c70fd8a21b82225307 && cd ..
 
 # 获取 KSU 版本信息并写入 Makefile
@@ -161,7 +161,7 @@ export KSUVER=40129
 
 KSU_API_VERSION=4.0.0
 
-KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/susfs-main | cut -f1 | cut -c1-8)
+KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/builtin | cut -f1 | cut -c1-8)
 KSU_VERSION_FULL="v${KSU_API_VERSION}-40129-xiaoxiaow"
 
 # 删除旧的 KSU 版本定义
@@ -176,7 +176,7 @@ while IFS= read -r line; do
   if echo "$line" | grep -q 'REPO_OWNER :='; then
     cat >> "$TMP_FILE" <<EOF
 define get_ksu_version_full
-v\\\$\$1-40129-xiaoxiaow[稳定版]
+v\\\$\$1-40129-xiaoxiaow
 endef
 
 KSU_VERSION_API := ${KSU_API_VERSION}
