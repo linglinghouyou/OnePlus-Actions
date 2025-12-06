@@ -79,6 +79,15 @@ on:
           - '5.10'
         default: '6.1'
 
+      SUSFS:
+       description: "是否启用SUSFS"
+       required: true
+       type: choice
+       options:
+          - 'On'
+          - 'Off'
+       default: 'Off'
+
       lz4kd:
        description: "是否启用lz4kd(6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4)"
        required: true
@@ -261,33 +270,37 @@ jobs:
         run: |
           cd kernel_workspace
 
-          echo "⬇️ 下载SUSFS补丁..."
-          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+          echo "⬇️ 下载所需补丁..."
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+          fi
           git clone https://github.com/Xiaomichael/kernel_patches.git
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
 
           cd kernel_platform
           echo "📝 复制补丁文件..."
-          cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-          PATCH_FILE="./KernelSU/10_enable_susfs_for_ksu.patch"
-          if [ -f "$PATCH_FILE" ]; then
-            if grep -q "a/kernel/Makefile" "$PATCH_FILE"; then
-              echo "检测到旧版 Makefile 补丁代码，正在执行修复..."
-              sed -i 's|kernel/Makefile|kernel/Kbuild|g' "$PATCH_FILE"
-              sed -i 's|.*compdb.*|@@ -75,4 +75,13 @@ ccflags-y += -DEXPECTED_HASH=\\"$(KSU_EXPECTED_HASH)\\"|' "$PATCH_FILE"
-              sed -i 's|^ clean:| ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes|' "$PATCH_FILE"
-              sed -i 's|.*make -C.*| ccflags-y += -Wno-declaration-after-statement -Wno-unused-function|' "$PATCH_FILE"
-              echo "补丁修复完成！"
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
+            PATCH_FILE="./KernelSU/10_enable_susfs_for_ksu.patch"
+            if [ -f "$PATCH_FILE" ]; then
+              if grep -q "a/kernel/Makefile" "$PATCH_FILE"; then
+                echo "检测到旧版 Makefile 补丁代码，正在执行修复..."
+                sed -i 's|kernel/Makefile|kernel/Kbuild|g' "$PATCH_FILE"
+                sed -i 's|.*compdb.*|@@ -75,4 +75,13 @@ ccflags-y += -DEXPECTED_HASH=\\"$(KSU_EXPECTED_HASH)\\"|' "$PATCH_FILE"
+                sed -i 's|^ clean:| ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes|' "$PATCH_FILE"
+                sed -i 's|.*make -C.*| ccflags-y += -Wno-declaration-after-statement -Wno-unused-function|' "$PATCH_FILE"
+                echo "补丁修复完成！"
+              else
+                echo "补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
+              fi
             else
-              echo "补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
+              echo "未找到KSU补丁！"
+              exit 1
             fi
-          else
-            echo "未找到KSU补丁！"
-            exit 1
+            cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
+            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+            cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           fi
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
           cp ../kernel_patches/zram/001-lz4.patch ./common/
           cp ../kernel_patches/zram/lz4armv8.S ./common/lib
@@ -302,8 +315,10 @@ jobs:
           fi
           
           echo "🔧 应用补丁..."
-          cd ./KernelSU
-          patch -p1 < 10_enable_susfs_for_ksu.patch || true
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            cd ./KernelSU
+            patch -p1 < 10_enable_susfs_for_ksu.patch || true
+          fi
 
           cd ../common
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
@@ -324,12 +339,14 @@ jobs:
             cp ../../SukiSU_patch/other/zram/zram_patch/${{ github.event.inputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
             patch -p1 -F 3 < lz4k_oplus.patch || true
           fi
-           
-          patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
 
-          cp ../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch
-          
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then           
+            patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
+
+            cp ../../kernel_patches/69_hide_stuff.patch ./
+            patch -p1 -F 3 < 69_hide_stuff.patch
+          fi
+
           echo "✅ 所有补丁应用完成"
 
       - name: "⚙️ Apply SCHED Patch | 应用风驰补丁"
@@ -365,18 +382,20 @@ jobs:
           # Add KSU configuration settings
           echo "📦 启用 KSU 支持..."
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-            
-          # Add SUSFS configuration settings
-          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            # Add SUSFS configuration settings
+            echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
 
           #添加对 Mountify (backslashxx/mountify) 模块的支持
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
