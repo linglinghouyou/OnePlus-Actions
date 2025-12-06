@@ -277,7 +277,7 @@ jobs:
 
           echo "✅ KernelSU 配置完成"
         
-      - name: "🔧 Setup SUSFS | 配置 SUSFS"
+      - name: "🔧 Setup Patches | 配置补丁"
         run: |
           cd kernel_workspace
 
