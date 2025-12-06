@@ -159,7 +159,7 @@ KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
 
 for i in {1..3}; do
-  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/Kbuild" | \
+  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/tmp-builtin/kernel/Kbuild" | \
     grep -m1 "KSU_VERSION_API :=" | cut -d'=' -f2 | tr -d '[:space:]')
   [ -n "$KSU_API_VERSION" ] && break || sleep 2
 done
@@ -169,8 +169,8 @@ if [ -z "$KSU_API_VERSION" ]; then
   exit 1
 fi
 
-KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/susfs-main | cut -f1 | cut -c1-8)
-KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow"
+KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/tmp-builtin | cut -f1 | cut -c1-8)
+KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@tmp-builtin"
 
 # 删除旧的 KSU 版本定义
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
@@ -184,7 +184,7 @@ while IFS= read -r line; do
   if echo "$line" | grep -q 'REPO_OWNER :='; then
     cat >> "$TMP_FILE" <<EOF
 define get_ksu_version_full
-v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow
+v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow@tmp-builtin
 endef
 
 KSU_VERSION_API := ${KSU_API_VERSION}

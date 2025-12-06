@@ -262,11 +262,11 @@ jobs:
 
           # 下载并执行设置脚本
           echo "🛠️ 正在设置SukiSU Ultra..."
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/tmp-builtin/kernel/setup.sh" | bash -s tmp-builtin
           
           cd KernelSU
           echo "⬇️ 下载SukiSU设置工具..."
-          curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup.bin
+          curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_tmp.bin
           chmod +x sukisu_setup.bin
           
           # 验证Kbuild存在

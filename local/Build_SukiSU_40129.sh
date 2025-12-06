@@ -161,8 +161,7 @@ export KSUVER=40129
 
 KSU_API_VERSION=4.0.0
 
-KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/builtin | cut -f1 | cut -c1-8)
-KSU_VERSION_FULL="v${KSU_API_VERSION}-40129-xiaoxiaow"
+KSU_VERSION_FULL="v${KSU_API_VERSION}-40129-xiaoxiaow@builtin"
 
 # 删除旧的 KSU 版本定义
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Makefile
@@ -176,7 +175,7 @@ while IFS= read -r line; do
   if echo "$line" | grep -q 'REPO_OWNER :='; then
     cat >> "$TMP_FILE" <<EOF
 define get_ksu_version_full
-v\\\$\$1-40129-xiaoxiaow
+v\\\$\$1-40129-xiaoxiaow@builtin
 endef
 
 KSU_VERSION_API := ${KSU_API_VERSION}
