@@ -331,7 +331,12 @@ jobs:
             patch -p1 < 10_enable_susfs_for_ksu.patch || true
           fi
 
-          cd ../common
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            cd ../common
+          elif [ "${{ github.event.inputs.SUSFS }}" == "Off" ]; then
+            cd ./common
+          fi
+          
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
             echo "📦 应用lz4+zstd补丁..."
             git apply -p1 < 001-lz4.patch || true
