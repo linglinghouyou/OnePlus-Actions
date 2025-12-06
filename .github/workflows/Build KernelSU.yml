@@ -169,14 +169,25 @@ jobs:
           execute_install_scripts: true
          
       # ====================== 缓存管理阶段 ======================
-      - name: "💾 Restore ccache | 恢复ccache缓存"
+      - name: "💾 Restore ccache (With SUSFS) | 恢复ccache缓存 (With SUSFS)"
+        if: ${{ github.event.inputs.SUSFS == 'On' }}
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-Official
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-Official-SUSFS
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-Official
-            ccache-${{ runner.os }}-Official
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-Official-SUSFS
+            ccache-${{ runner.os }}-Official-SUSFS
+
+      - name: "💾 Restore ccache (Without SUSFS) | 恢复ccache缓存 (Without SUSFS)"
+        if: ${{ github.event.inputs.SUSFS == 'Off' }}
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-Official-NoSUSFS
+          restore-keys: |
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-Official-NoSUSFS
+            ccache-${{ runner.os }}-Official-NoSUSFS
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
