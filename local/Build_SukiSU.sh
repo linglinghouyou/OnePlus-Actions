@@ -1,8 +1,7 @@
 #!/bin/bash
-#export all_proxy=socks5://192.168.x.x:x/   # 如需走代理，请在这里填写你的 socks5 代理地址
+#export all_proxy=socks5://192.168.x.x:x/
 set -e
 
-# --- 构建配置阶段 ---
 clear
 echo "==================================================="
 echo "  SukiSU Ultra OnePlus Kernel Build Configuration  "
@@ -10,7 +9,6 @@ echo "==================================================="
 echo "  按回车键可直接使用 [方括号] 中的默认值"
 echo ""
 
-# 带默认值的交互输入函数
 ask() {
     local prompt default reply
     prompt="$1"
@@ -20,7 +18,6 @@ ask() {
     echo "${reply:-$default}"
 }
 
-# --- 交互输入 ---
 CPU=$(ask "请输入 CPU 分支 (例如: sm8750, sm8650, sm8550, sm8475)" "sm8650")
 FEIL=$(ask "请输入手机型号 (例如: oneplus_13_b, oneplus_12_b, oneplus_11_b)" "oneplus_12_b")
 ANDROID_VERSION=$(ask "请输入安卓 KMI 版本 (android15, android14, android13, android12)" "android14")
@@ -31,7 +28,6 @@ bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
 bbg=$(ask "是否启用 Baseband-Guard 基带防护? (On/Off)" "On")
 proxy=$(ask "是否添加代理性能优化? (如为联发科 CPU 必须选择 Off) (On/Off)" "On")
 
-# --- 配置摘要 ---
 clear
 echo ""
 echo "================================================="
@@ -50,14 +46,12 @@ echo "================================================="
 read -p "按回车键开始构建流程..."
 clear
 
-# --- 环境准备 ---
 echo "📦 正在准备构建工作空间..."
 WORKSPACE=$PWD/build_workspace
 sudo rm -rf "$WORKSPACE"
 mkdir -p "$WORKSPACE"
 cd "$WORKSPACE"
 
-# 在使用依赖前先安装
 echo "📦 正在安装构建依赖..."
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
@@ -68,7 +62,6 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends 
 clear
 echo "✅ 必要构建依赖安装完成"
 
-# 配置并优化 ccache
 echo "⚙️ 正在配置 ccache 缓存..."
 export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -81,15 +74,11 @@ echo "✅ ccache 缓存目录: $CCACHE_DIR"
 ccache -M "$CCACHE_MAXSIZE"
 ccache -z
 
-# 为 repo 工具配置 git 信息
 echo "🔐 正在配置 Git 用户信息..."
 git config --global user.name "Local Builder"
 git config --global user.email "builder@localhost"
 echo "✅ Git 用户信息配置完成"
 
-# --- 源码及工具准备 ---
-
-# 未安装 repo 时自动安装
 if ! command -v repo &> /dev/null; then
     echo "📥 未检测到 repo 工具，正在安装..."
     curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
@@ -100,7 +89,6 @@ else
     echo "ℹ️ 已检测到 repo 工具，跳过安装"
 fi
 
-# 克隆内核源码
 echo "⬇️ 正在准备内核源码目录..."
 sudo rm -rf kernel_workspace
 mkdir -p kernel_workspace && cd kernel_workspace
@@ -147,13 +135,10 @@ if [ "$bbg" = "On" ] && [ "$KPM" = "Off" ]; then
     echo "✅ Baseband-Guard 配置完成"
 fi
 
-# --- 内核个性化定制 ---
-# 配置 SukiSU Ultra
 echo "⚡ 正在配置 SukiSU Ultra..."
 cd kernel_platform
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/setup.sh" | bash -s builtin
+curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/tmp-builtin/kernel/setup.sh" | bash -s tmp-builtin
 
-# 获取 KSU 版本信息并写入 Kbuild
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
@@ -172,12 +157,10 @@ fi
 KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/tmp-builtin | cut -f1 | cut -c1-8)
 KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@tmp-builtin"
 
-# 删除旧的 KSU 版本定义
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
 sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
 sed -i '/KSU_VERSION_FULL :=/d' kernel/Kbuild
 
-# 在 REPO_OWNER := 后插入新的 KSU 版本定义
 TMP_FILE=$(mktemp)
 while IFS= read -r line; do
   echo "$line" >> "$TMP_FILE"
@@ -196,9 +179,7 @@ mv "$TMP_FILE" kernel/Kbuild
 
 echo "✅ SukiSU Ultra 版本信息配置完成"
 cd ../..
-# 回到 $WORKSPACE/kernel_workspace
 
-# 准备 SUSFS 及其他补丁
 echo "🔧 正在克隆所需补丁..."
 git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
 git clone https://github.com/Xiaomichael/kernel_patches.git
@@ -226,14 +207,12 @@ echo "🔧 正在应用补丁..."
 cd ./common
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 
-# 6.1：应用 lz4 + zstd 补丁
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 正在为 6.1 应用 lz4 + zstd 补丁..."
   git apply -p1 < 001-lz4.patch || true
   patch -p1 < 002-zstd.patch || true
 fi
 
-# 6.6：仅应用 lz4 补丁
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.6" ]; then
   echo "📦 正在为 6.6 应用 lz4 补丁..."
   git apply -p1 < 001-lz4.patch || true
@@ -379,7 +358,6 @@ sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common
 echo "✅ defconfig 配置更新完成"
 cd ../..
 
-# --- 编译与打包 ---
 
 echo "🔨 开始内核编译..."
 cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
@@ -410,7 +388,6 @@ ccache -s
 echo "✅ 内核编译完成"
 cd "$WORKSPACE"
 
-# 使用 AnyKernel3 进行打包
 echo "📦 正在获取 AnyKernel3 并准备打包..."
 git clone https://github.com/Xiaomichael/AnyKernel3 --depth=1
 rm -rf ./AnyKernel3/.git
@@ -421,7 +398,6 @@ if [ -z "$IMAGE_PATH" ]; then echo "❌ 严重错误：编译完成后未找到 
 echo "✅ 已找到 Kernel Image: $IMAGE_PATH"
 cp "$IMAGE_PATH" ./AnyKernel3/Image
 
-# 如启用 KPM，则对 Image 进行补丁处理
 if [ "$KPM" = 'On' ]; then
     echo "🧩 正在对内核 Image 应用 KPM 补丁..."
     mkdir -p kpm_patch_temp && cd kpm_patch_temp
@@ -433,8 +409,6 @@ if [ "$KPM" = 'On' ]; then
     cd .. && rm -rf kpm_patch_temp
     echo "✅ KPM 补丁应用完成"
 fi
-
-# --- 构建结果输出 ---
 
 if [ "$lz4kd" = "On" ]; then
   ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_lz4kd_${KSUVER}"
@@ -450,7 +424,6 @@ FINAL_ZIP_NAME="${ARTIFACT_NAME}.zip"
 echo "📦 正在创建最终可刷入压缩包: ${FINAL_ZIP_NAME}..."
 cd AnyKernel3 && zip -q -r9 "../${FINAL_ZIP_NAME}" ./* && cd ..
 
-# --- 构建总结 ---
 echo ""
 echo "================================================="
 echo "                  构建完成！"

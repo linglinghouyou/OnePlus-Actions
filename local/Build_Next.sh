@@ -2,7 +2,6 @@
 #export all_proxy=socks5://192.168.x.x:x/
 set -e
 
-# --- Build Configuration ---
 clear
 echo "===================================================="
 echo "  KernelSU Next OnePlus Kernel Build Configuration  "
@@ -10,7 +9,6 @@ echo "===================================================="
 echo "Press Enter to accept the default value in [brackets]."
 echo ""
 
-# Function to prompt user for input with a default value
 ask() {
     local prompt default reply
     prompt="$1"
@@ -20,7 +18,6 @@ ask() {
     echo "${reply:-$default}"
 }
 
-# --- Interactive Inputs ---
 CPU=$(ask "Enter CPU branch (e.g., sm8750, sm8650, sm8550, sm8475)" "sm8650")
 FEIL=$(ask "Enter phone model (e.g., oneplus_13_b, oneplus_12_b, oneplus_11_b)" "oneplus_12_b")
 ANDROID_VERSION=$(ask "Enter kernel Android version (android14, android13, android12)" "android14")
@@ -30,7 +27,6 @@ bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
 bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
 proxy=$(ask "Add proxy performance optimization? (if MTK CPU must be Off!) (On/Off)" "On")
 
-# --- Display Configuration Summary ---
 clear
 echo ""
 echo "================================================="
@@ -48,14 +44,12 @@ echo "================================================="
 read -p "Press Enter to begin the build process..."
 clear
 
-# --- Environment Setup ---
 echo "📦 Preparing the files..."
 WORKSPACE=$PWD/build_workspace
 sudo rm -rf "$WORKSPACE"
 mkdir -p "$WORKSPACE"
 cd "$WORKSPACE"
 
-# Install dependencies BEFORE trying to use them.
 echo "📦 Installing build dependencies (requires sudo)..."
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
@@ -66,8 +60,6 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends 
 clear
 echo "✅ All dependencies installed successfully."
 
-# Set up and improve ccache
-# Generous size for local builds
 echo "⚙️ Setting up ccache..."
 export CCACHE_DIR="$HOME/.ccache_${FEIL}_Next"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -79,17 +71,12 @@ mkdir -p "$CCACHE_DIR"
 echo "✅ ccache directory set to: $CCACHE_DIR"
 ccache -M "$CCACHE_MAXSIZE"
 ccache -z
-# Clear statistics for a clean run summary
 
-# Configure Git for repo tool
 echo "🔐 Configuring Git user info..."
 git config --global user.name "Local Builder"
 git config --global user.email "builder@localhost"
 echo "✅ Git configured."
 
-# --- Source Code and Tooling ---
-
-# Install Google Repo Tool if not present
 if ! command -v repo &> /dev/null; then
     echo "📥 Installing Google Repo tool..."
     curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
@@ -100,7 +87,6 @@ else
     echo "ℹ️ Repo tool already installed."
 fi
 
-# Clone Kernel Source
 echo "⬇️ Cloning kernel source code..."
 sudo rm -rf kernel_workspace
 mkdir -p kernel_workspace && cd kernel_workspace
@@ -145,13 +131,10 @@ if [ "$bbg" = "On" ]; then
     cd ../..
 fi
 
-# --- Kernel Customization ---
-# Setup KernelSU Next
 echo "⚡ Setting up KernelSU Next..."
 cd kernel_platform
 curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
 
-# Get KSU Version info
 cd KernelSU-Next
 KSU_VERSION=$(expr $(curl -sI "https://api.github.com/repos/KernelSU-Next/KernelSU-Next/commits?sha=next&per_page=1" | grep -i "link:" | sed -n 's/.*page=\([0-9]*\)>; rel="last".*/\1/p') "+" 10200)
 export KSUVER=$(expr $KSU_VERSION)
@@ -159,9 +142,7 @@ sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
 echo "✅ KernelSU Next configured."
 cd ../..
-# Back to $WORKSPACE/kernel_workspace
 
-# Set up SUSFS and other patches
 echo "🔧 Setting up SUSFS and applying patches..."
 git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
 
@@ -229,7 +210,6 @@ patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.4.patch
 
 echo "✅ All patches applied."
 cd ../..
-# Back to $WORKSPACE/kernel_workspace
 
 if [ "$KERNEL_VERSION" = "6.6" ]; then
     cd kernel_platform/common
@@ -255,7 +235,6 @@ if [ "$KERNEL_VERSION" = "6.6" ]; then
     cd ../..
 fi
 
-# Configure Kernel Options
 echo "⚙️ Configuring kernel build options (defconfig)..."
 DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/configs/gki_defconfig"
 
@@ -362,9 +341,6 @@ echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
 echo "✅ Kernel defconfig updated."
 cd ../..
-# Back to $WORKSPACE
-
-# --- Build and Package ---
 
 echo "🔨 Building the kernel..."
 cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
@@ -394,7 +370,6 @@ ccache -s
 echo "✅ Kernel compilation finished."
 cd "$WORKSPACE"
 
-# Package Kernel with AnyKernel3
 echo "📦 Packaging kernel with AnyKernel3..."
 git clone https://github.com/Xiaomichael/AnyKernel3 --depth=1
 rm -rf ./AnyKernel3/.git
@@ -404,8 +379,6 @@ if [ -z "$IMAGE_PATH" ]; then echo "❌ FATAL: Kernel Image not found after buil
 
 echo "✅ Kernel Image found at: $IMAGE_PATH"
 cp "$IMAGE_PATH" ./AnyKernel3/Image
-
-# --- Finalize and Upload ---
 
 if [ "$lz4kd" = "On" ]; then
   ARTIFACT_NAME="${FEIL}_KernelSU_Next_lz4kd_${KSUVER}"
@@ -421,7 +394,6 @@ FINAL_ZIP_NAME="${ARTIFACT_NAME}.zip"
 echo "📦 Creating final zip file: ${FINAL_ZIP_NAME}..."
 cd AnyKernel3 && zip -q -r9 "../${FINAL_ZIP_NAME}" ./* && cd ..
 
-# --- Build Summary ---
 echo ""
 echo "================================================="
 echo "               Build Complete!"
