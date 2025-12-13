@@ -165,17 +165,17 @@ if [ "$SUSFS" == "On" ]; then
   PATCH_FILE="./KernelSU/10_enable_susfs_for_ksu.patch"
   if [ -f "$PATCH_FILE" ]; then
     if grep -q "a/kernel/Makefile" "$PATCH_FILE"; then
-      echo "检测到旧版 Makefile 补丁代码，正在执行修复..."
+      echo "🛠️ 检测到旧版 Makefile 补丁代码，正在执行修复..."
       sed -i 's|kernel/Makefile|kernel/Kbuild|g' "$PATCH_FILE"
       sed -i 's|.*compdb.*|@@ -75,4 +75,13 @@ ccflags-y += -DEXPECTED_HASH=\\"$(KSU_EXPECTED_HASH)\\"|' "$PATCH_FILE"
       sed -i 's|^ clean:| ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes|' "$PATCH_FILE"
       sed -i 's|.*make -C.*| ccflags-y += -Wno-declaration-after-statement -Wno-unused-function|' "$PATCH_FILE"
-      echo "补丁修复完成！"
+      echo "✅ 补丁修复完成！"
     else
-      echo "补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
+      echo "📝 补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
     fi
   else
-    echo "未找到KSU补丁！"
+    echo "❌ 未找到SUSFS补丁！"
     exit 1
   fi
   cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
