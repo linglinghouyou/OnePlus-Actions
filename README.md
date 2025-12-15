@@ -31,9 +31,10 @@
 
 <img width="1122" height="257" alt="image" src="https://github.com/user-attachments/assets/24631b01-ec9d-4f77-a764-476cfe522537" />
 
-## ③ 配置开关建议
+### ③ 配置开关建议
 
-- **kpm选项**：建议禁用以减少电量消耗，挂🐕去④
+- **SUSFS选项**：SUSFS在 最新版 `KernelSU` 与 `SukiSU Ultra` 上已经改为可选，看你的需求进行开关 
+- **KPM选项**：建议禁用以减少电量消耗，挂🐕去④
 - **lz4kd**：
   - 6.1系列内核：建议关闭该选项以获得更好的 `lz4 + zstd` 压缩方式
   - 6.6系内核：建议关闭该选项以获得更好的 `lz4` 压缩方式
