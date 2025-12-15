@@ -78,7 +78,16 @@ on:
           - '5.15'
           - '5.10'
         default: '6.1'
-        
+
+      SUSFS:
+       description: "是否启用SUSFS"
+       required: true
+       type: choice
+       options:
+          - 'On'
+          - 'Off'
+       default: 'On'
+
       KPM:
        description: "是否启用KPM"
        required: true
@@ -126,7 +135,7 @@ on:
          
 jobs:
   build:
-    name: For ${{ github.event.inputs.FEIL }} KPM ${{ github.event.inputs.KPM }} lz4kd ${{ github.event.inputs.lz4kd }} 
+    name: For ${{ github.event.inputs.FEIL }} KPM ${{ github.event.inputs.KPM }} lz4kd ${{ github.event.inputs.lz4kd }} SUSFS ${{ github.event.inputs.SUSFS }}
     runs-on: ubuntu-latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -169,14 +178,25 @@ jobs:
           execute_install_scripts: true
 
       # ====================== 缓存管理阶段 ======================
-      - name: "💾 Restore ccache | 恢复ccache缓存"
+      - name: "💾 Restore ccache (With SUSFS) | 恢复ccache缓存 (With SUSFS)"
+        if: ${{ github.event.inputs.SUSFS == 'On' }}
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-SUSFS
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU
-            ccache-${{ runner.os }}-SukiSU
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-SUSFS
+            ccache-${{ runner.os }}-SukiSU-SUSFS
+
+      - name: "💾 Restore ccache (Without SUSFS) | 恢复ccache缓存 (Without SUSFS)"
+        if: ${{ github.event.inputs.SUSFS == 'Off' }}
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-SukiSU-NoSUSFS
+          restore-keys: |
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-SukiSU-NoSUSFS
+            ccache-${{ runner.os }}-SukiSU-NoSUSFS
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
@@ -281,20 +301,26 @@ jobs:
           
           echo "✅ SukiSU Ultra配置完成"
           
-      - name: "🔧 Setup SUSFS | 配置 SUSFS"
+      - name: "🔧 Setup Patches | 配置补丁"
         run: |
           cd kernel_workspace
 
           echo "⬇️ 克隆所需补丁..."
-          git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then          
+            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+          fi
           git clone https://github.com/Xiaomichael/kernel_patches.git
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
           
           cd kernel_platform
           echo "📝 复制补丁文件..."
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-          cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
+            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+            cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+          else
+            cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6_fix.patch ./common/
+          fi
           cp ../kernel_patches/zram/001-lz4.patch ./common/
           cp ../kernel_patches/zram/lz4armv8.S ./common/lib
           cp ../kernel_patches/zram/002-zstd.patch ./common/
@@ -328,8 +354,13 @@ jobs:
             patch -p1 -F 3 < lz4k_oplus.patch || true
           fi
 
-          echo "📦 应用SUSFS补丁..."
-          patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            echo "📦 应用SUSFS补丁..."
+            patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
+          else
+            echo "📦 应用manual补丁..."
+            patch -p1 -F 3 < scope_min_manual_hooks_v1.6_fix.patch
+          fi
 
           echo "✅ 所有补丁应用完成"
 
@@ -376,17 +407,23 @@ jobs:
             echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
           
-          echo "📦 启用 SUSFS 功能..."
-          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            echo "📦 启用 SUSFS 功能..."
+            echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          else 
+            echo "CONFIG_KSU_SUSFS=n" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
 
           echo "📦 添加对 Mountify (backslashxx/mountify) 模块的支持"
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -547,6 +584,9 @@ jobs:
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_lz4_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
           else
             echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_SukiSU_Ultra_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+          fi
+          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
+            echo "ARTIFACT_NAME=${{ steps.set_name.outputs.ARTIFACT_NAME }}_SUSFS" >> $GITHUB_OUTPUT
           fi
 
       - name: "📤 Upload AnyKernel3 | 上传 AnyKernel3"
