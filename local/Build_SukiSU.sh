@@ -222,7 +222,7 @@ cd ./common
 if [ "$SUSFS" = "On" ]; then
     patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 else
-    echo "📦 应用 manual hooks 补丁..."
+    echo "📦 应用 MANUAL_HOOK 补丁..."
     patch -p1 -F 3 < scope_min_manual_hooks_v1.6_fix.patch
 fi
 
@@ -282,6 +282,7 @@ DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/co
 echo "CONFIG_KSU=y" >> "$DEFCONFIG_PATH"
 
 if [ "$SUSFS" = "On" ]; then
+    echo "📦 启用 SUSFS 功能..."
     cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
@@ -295,6 +296,7 @@ CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_MAP=y
 EOT
 else
+    echo "📦 启用 MANUAL_HOOK..."
     cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_KSU_SUSFS=n
 CONFIG_KSU_MANUAL_HOOK=y
