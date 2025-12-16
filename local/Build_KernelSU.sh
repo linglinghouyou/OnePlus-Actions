@@ -412,6 +412,10 @@ elif [ "$KERNEL_VERSION" = "6.6" ]; then
 else
   ARTIFACT_NAME="${FEIL}_KernelSU_${KSUVER}"
 fi
+if [ "$SUSFS" = "On" ]; then
+  ARTIFACT_NAME="${ARTIFACT_NAME}_SUSFS"
+fi
+
 FINAL_ZIP_NAME="${ARTIFACT_NAME}.zip"
 
 echo "📦 正在创建最终可刷入压缩包: ${FINAL_ZIP_NAME}..."

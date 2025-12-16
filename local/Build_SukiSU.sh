@@ -65,7 +65,11 @@ clear
 echo "✅ 必要构建依赖安装完成"
 
 echo "⚙️ 正在配置 ccache 缓存..."
-export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
+if [ "$SUSFS" == "On" ]; then
+  export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU_SUSFS"
+else
+  export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU_NoSUSFS"
+fi
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
 export CCACHE_NOHASHDIR="true"
 export CCACHE_HARDLINK="true"
@@ -443,8 +447,6 @@ elif [ "$KERNEL_VERSION" = "6.6" ]; then
 else
   ARTIFACT_NAME="${FEIL}_SukiSU_Ultra_${KSUVER}"
 fi
-
-# 添加 SUSFS 标识
 if [ "$SUSFS" = "On" ]; then
   ARTIFACT_NAME="${ARTIFACT_NAME}_SUSFS"
 fi
