@@ -233,6 +233,7 @@ echo "✅ 所有补丁应用完成"
 cd ../..
 
 if [ "$KERNEL_VERSION" = "6.6" ]; then
+  cd kernel_platform/common
   echo "⬇️ 正在拉取风驰补丁"
   if [ "$FEIL" = "oneplus_ace5_ultra" ]; then
       echo "⚠️ Ace5 Ultra 需要使用 mt6991 分支的补丁"
