@@ -40,6 +40,7 @@ on:
           - 'oneplus_13r_b'
           - 'oneplus_pad2_v'
           - 'oneplus_pad_pro_v'
+          - 'oneplus_ace5_race_b'
           - 'oneplus_ace5_race'
           - 'oneplus_nord_5'
           - 'oneplus_11_b'
