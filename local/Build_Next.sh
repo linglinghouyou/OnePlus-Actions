@@ -135,10 +135,10 @@ fi
 
 echo "⚡ 正在配置 KernelSU Next..."
 cd kernel_platform
-curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
+curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/dev-susfs/kernel/setup.sh" | bash -s dev-susfs
 
 cd KernelSU-Next
-KSU_VERSION=$(expr $(curl -sI "https://api.github.com/repos/KernelSU-Next/KernelSU-Next/commits?sha=next&per_page=1" | grep -i "link:" | sed -n 's/.*page=\([0-9]*\)>; rel="last".*/\1/p') "+" 10200)
+KSU_VERSION=$(expr $(curl -sI "https://api.github.com/repos/KernelSU-Next/KernelSU-Next/commits?sha=dev&per_page=1" | grep -i "link:" | sed -n 's/.*page=\([0-9]*\)>; rel="last".*/\1/p') "+" 30000)
 export KSUVER=$(expr $KSU_VERSION)
 sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
@@ -147,25 +147,13 @@ cd ../..
 
 echo "🔧 正在克隆所需补丁..."
 git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
-if [ "$KERNEL_VERSION" = "6.1" ]; then
-    cd susfs4ksu && git checkout a162e2469d0b472545e5e46457eee171c0975fb0 && cd ..
-fi
-if [ "$KERNEL_VERSION" = "6.6" ]; then
-    cd susfs4ksu && git checkout f450ec00bf592d080f59b01ff6f9242456c9a427 && cd ..
-fi
-if [ "$KERNEL_VERSION" = "5.15" ]; then
-    cd susfs4ksu && git checkout babf6be195576f09aae79650d47abf6a76e8a21b && cd ..
-fi
-if [ "$KERNEL_VERSION" = "5.10" ]; then
-    cd susfs4ksu && git checkout 8a76ba240d1f7315352b49d97d854a4b166e5b47 && cd ..
-fi
 git clone https://github.com/Xiaomichael/kernel_patches.git
 git clone https://github.com/ShirkNeko/SukiSU_patch.git
 
 cd kernel_platform
 echo "📝 正在复制补丁文件..."
 cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-cp ../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./common/
+cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
@@ -207,7 +195,7 @@ fi
 
 cp ../../kernel_patches/69_hide_stuff.patch ./
 patch -p1 -F 3 < 69_hide_stuff.patch || true
-patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.4.patch
+patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
 echo "✅ 所有补丁应用完成"
 cd ../..
 
@@ -247,23 +235,15 @@ cat <<EOT >> "$DEFCONFIG_PATH"
 
 #--- KernelSU Next & SUSFS Custom Configs ---
 CONFIG_KSU=y
-CONFIG_KSU_KPROBES_HOOK=n
-CONFIG_KSU_MANUAL_HOOK=y
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
 CONFIG_KSU_SUSFS_SUS_MOUNT=y
-CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
-CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
 CONFIG_KSU_SUSFS_SUS_KSTAT=y
-CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n
-CONFIG_KSU_SUSFS_TRY_UMOUNT=y
-CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
 CONFIG_KSU_SUSFS_SPOOF_UNAME=y
 CONFIG_KSU_SUSFS_ENABLE_LOG=y
 CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-CONFIG_KSU_SUSFS_SUS_SU=n
 CONFIG_KSU_SUSFS_SUS_MAP=y
 
 # 添加对 Mountify (backslashxx/mountify) 模块的支持
