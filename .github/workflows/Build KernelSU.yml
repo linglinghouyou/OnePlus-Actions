@@ -550,23 +550,28 @@ jobs:
         id: set_name
         run: |
           if [ "${{ github.event.inputs.lz4kd }}" = "On" ]; then
-            echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_KernelSU_lz4kd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+            BASE_NAME="${{ github.event.inputs.FEIL }}_KernelSU_lz4kd_${{ env.KSUVER }}"
           elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
-            echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_KernelSU_lz4_zstd_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+            BASE_NAME="${{ github.event.inputs.FEIL }}_KernelSU_lz4_zstd_${{ env.KSUVER }}"
           elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
-            echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_KernelSU_lz4_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+            BASE_NAME="${{ github.event.inputs.FEIL }}_KernelSU_lz4_${{ env.KSUVER }}"
           else
-            echo "ARTIFACT_NAME=${{ github.event.inputs.FEIL }}_KernelSU_${{ env.KSUVER }}" >> $GITHUB_OUTPUT
+            BASE_NAME="${{ github.event.inputs.FEIL }}_KernelSU_${{ env.KSUVER }}"
           fi
-          if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
-            echo "ARTIFACT_NAME=${{ steps.set_name.outputs.ARTIFACT_NAME }}_SUSFS" >> $GITHUB_OUTPUT
+          
+          if [ "${{ github.event.inputs.SUSFS }}" = "On" ]; then
+            FINAL_NAME="${BASE_NAME}_SUSFS"
+          else
+            FINAL_NAME="${BASE_NAME}"
           fi
-         
+          
+          echo "ARTIFACT_NAME=${FINAL_NAME}" >> $GITHUB_OUTPUT
+
       - name: "📤 Upload AnyKernel3 | 上传 AnyKernel3"
         uses: actions/upload-artifact@v4
         with:
-         name: ${{ steps.set_name.outputs.ARTIFACT_NAME }}
-         path: ./AnyKernel3/*
+          name: ${{ steps.set_name.outputs.ARTIFACT_NAME }}
+          path: ./AnyKernel3/*
 
       - name: "📝 Find zram.ko & crypto_zstdn.ko | 查找 zram.ko & crypto_zstdn.ko"
         # if: ${{ github.event.inputs.lz4kd == 'On' }}
