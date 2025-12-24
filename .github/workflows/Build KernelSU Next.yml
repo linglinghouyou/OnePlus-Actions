@@ -165,10 +165,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-Next
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ github.event.inputs.FEIL }}-Next-SUSFS
           restore-keys: |
-            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-Next
-            ccache-${{ runner.os }}-Next
+            ccache-${{ runner.os }}-${{ github.event.inputs.FEIL }}-Next-SUSFS
+            ccache-${{ runner.os }}-Next-SUSFS
 
       - name: "⚙️ Initialize ccache | 初始化ccache"
         run: |
