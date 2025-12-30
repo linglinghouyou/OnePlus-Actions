@@ -160,6 +160,7 @@ cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 cp ../kernel_patches/zram/001-lz4.patch ./common/
 cp ../kernel_patches/zram/lz4armv8.S ./common/lib
 cp ../kernel_patches/zram/002-zstd.patch ./common/
+cp ../kernel_patches/common/unicode_bypass_fix_5.10-6.6.patch ./common/
 
 if [ "$lz4kd" = "On" ]; then
   echo "🚀 正在复制 lz4kd 相关补丁..."
@@ -171,6 +172,9 @@ fi
 
 echo "🔧 正在应用补丁..."
 cd ./common
+
+echo "📦 应用修复Unicode绕过补丁..."
+patch -p1 < unicode_bypass_fix_5.10-6.6.patch
 
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 
@@ -334,7 +338,7 @@ cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
 MAKE_CMD_COMMON="make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=\"ccache clang\" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all"
 
 if [ "$KERNEL_VERSION" = "6.1" ]; then
-    export KBUILD_BUILD_TIMESTAMP="Wed Aug 20 07:17:20 UTC 2025"
+    export KBUILD_BUILD_TIMESTAMP="Tue Dec  9 06:49:31 UTC 2025"
     export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
