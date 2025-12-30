@@ -211,7 +211,7 @@ echo "🔧 正在应用补丁..."
 cd ./common
 
 echo "📦 应用修复Unicode绕过补丁..."
-patch -p1 < unicode_bypass_fix_5.10-6.6.patch
+#patch -p1 < unicode_bypass_fix_5.10-6.6.patch
 
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 

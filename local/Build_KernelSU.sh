@@ -213,7 +213,7 @@ elif [ "$SUSFS" == "Off" ]; then
 fi
 
 echo "📦 应用修复Unicode绕过补丁..."
-patch -p1 < unicode_bypass_fix_5.10-6.6.patch
+#patch -p1 < unicode_bypass_fix_5.10-6.6.patch
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 正在为 6.1 应用 lz4 + zstd 补丁..."
