@@ -141,7 +141,11 @@ cd kernel_platform
 cp ../kernel_patches/zram/001-lz4.patch ./common/
 cp ../kernel_patches/zram/lz4armv8.S ./common/lib
 cp ../kernel_patches/zram/002-zstd.patch ./common/
-cp ../kernel_patches/common/unicode_bypass_fix_6.1+.patch ./common/
+if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
+  cp ../kernel_patches/common/unicode_bypass_fix_6.1+.patch ./common/unicode_bypass_fix.patch
+elif [ "$KERNEL_VERSION" = "5.15" ] || [ "$KERNEL_VERSION" = "5.10" ]; then
+  cp ../kernel_patches/common/unicode_bypass_fix_6.1-.patch ./common/unicode_bypass_fix.patch
+fi
 
 if [ "$lz4kd" = "On" ]; then
   echo "🚀 正在复制 lz4kd 相关补丁..."
@@ -155,7 +159,7 @@ echo "🔧 正在应用补丁..."
 cd ./common
 
 echo "📦 应用修复Unicode绕过补丁..."
-patch -p1 < unicode_bypass_fix_6.1+.patch
+patch -p1 < unicode_bypass_fix.patch
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 正在为 6.1 应用 lz4 + zstd 补丁..."
