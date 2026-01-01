@@ -312,7 +312,7 @@ jobs:
           cp ../kernel_patches/zram/001-lz4.patch ./common/
           cp ../kernel_patches/zram/lz4armv8.S ./common/lib
           cp ../kernel_patches/zram/002-zstd.patch ./common/
-          if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
+          if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ] || [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
             cp ../kernel_patches/common/unicode_bypass_fix_6.1+.patch ./common/unicode_bypass_fix.patch
           elif [ "${{ github.event.inputs.KERNEL_VERSION }}" = "5.15" ] || [ "${{ github.event.inputs.KERNEL_VERSION }}" = "5.10" ]; then
             cp ../kernel_patches/common/unicode_bypass_fix_6.1-.patch ./common/unicode_bypass_fix.patch
