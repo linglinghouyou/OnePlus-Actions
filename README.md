@@ -33,8 +33,8 @@
 
 ### ③ 配置开关建议
 
-- **SUSFS选项**：SUSFS在 最新版 `KernelSU` 与 `SukiSU Ultra` 上已经改为可选，看你的需求进行开关 
-- **KPM选项**：建议禁用以减少电量消耗，挂🐕去④
+- **SUSFS选项**：SUSFS在 最新版 `KernelSU` 与 `SukiSU Ultra` 与  `ReSukiSU` 上已经改为可选，看你的需求进行开关 
+- **KPM选项**：仅在 `SukiSU / ReSukiSU` 上可用，建议禁用以减少电量消耗，挂🐕去④
 - **lz4kd**：
   - 6.1系列内核：建议关闭该选项以获得更好的 `lz4 + zstd` 压缩方式
   - 6.6系内核：建议关闭该选项以获得更好的 `lz4` 压缩方式
