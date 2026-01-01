@@ -185,7 +185,7 @@ cd ../..
 if [ "$KERNEL_VERSION" = "6.6" ]; then
   cd kernel_platform/common
   echo "⬇️ 正在拉取风驰补丁"
-  if [ "$FEIL" = "oneplus_ace5_ultra" ]; then
+  if [ "$FEIL" = "oneplus_ace5_ultra" ] || [ "$FEIL" = "oneplus_ace5_ultra_b" ]; then
       echo "⚠️ Ace5 Ultra 需要使用 mt6991 分支的补丁"
       git clone https://github.com/Numbersf/SCHED_PATCH.git -b "mt6991"
   else
