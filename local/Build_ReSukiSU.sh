@@ -161,7 +161,7 @@ if [ -z "$KSU_API_VERSION" ]; then
 fi
 
 KSU_COMMIT_HASH=$(git ls-remote https://github.com/ReSukiSU/ReSukiSU.git refs/heads/builtin | cut -f1 | cut -c1-8)
-KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@builtin"
+KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@ReSukiSU"
 
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
 sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
@@ -173,7 +173,7 @@ while IFS= read -r line; do
   if echo "$line" | grep -q 'REPO_OWNER :='; then
     cat >> "$TMP_FILE" <<EOF
 define get_ksu_version_full
-v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow@builtin
+v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow@ReSukiSU
 endef
 
 KSU_VERSION_API := ${KSU_API_VERSION}
