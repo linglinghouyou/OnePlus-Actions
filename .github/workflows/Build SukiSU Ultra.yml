@@ -81,58 +81,67 @@ on:
         default: '6.1'
 
       SUSFS:
-       description: "是否启用SUSFS"
-       required: true
-       type: choice
-       options:
+        description: "是否启用SUSFS"
+        required: true
+        type: choice
+        options:
           - 'On'
           - 'Off'
-       default: 'On'
+        default: 'On'
 
       KPM:
-       description: "是否启用KPM"
-       required: true
-       type: choice
-       options:
-           - 'On'
-           - 'Off'
-       default: 'Off'
+        description: "是否启用KPM"
+        required: true
+        type: choice
+        options:
+          - 'On'
+          - 'Off'
+        default: 'Off'
        
       lz4kd:
-       description: "是否启用lz4kd(6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4)"
-       required: true
-       type: choice
-       options:
+        description: "是否启用lz4kd(6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4)"
+        required: true
+        type: choice
+        options:
           - 'On'
           - 'Off'
-       default: 'Off'
-       
-      bbr:
-       description: "是否启用BBR算法(对手机日用无太大意义甚至可能负优化)"
-       required: true
-       type: choice
-       options:
-          - 'On'
-          - 'Off'
-       default: 'Off'
+        default: 'Off'
 
       bbg:
         description: "是否启用BBG基带保护"
         required: true
         type: choice
         options:
-           - 'On'
-           - 'Off'
-        default: 'On'
-        
-      proxy:
-       description: "是否添加代理性能优化(联发科芯片跑的时候请关闭否则出现恶性问题)"
-       required: true
-       type: choice
-       options:
           - 'On'
           - 'Off'
-       default: 'On'
+        default: 'On'
+       
+      bbr:
+        description: "是否启用BBR算法(对手机日用无太大意义甚至可能负优化)"
+        required: true
+        type: choice
+        options:
+          - 'On'
+          - 'Off'
+        default: 'Off'
+
+      proxy:
+        description: "是否添加代理性能优化(联发科芯片跑的时候请关闭否则出现恶性问题)"
+        required: true
+        type: choice
+        options:
+          - 'On'
+          - 'Off'
+        default: 'On'
+
+      UNICODE_BYPASS:
+        description: "是否添加Unicode零宽绕过修复补丁"
+        required: true
+        type: choice
+        options:
+          - 'On'
+          - 'Off'
+        default: 'On'
          
 jobs:
   build:
