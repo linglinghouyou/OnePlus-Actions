@@ -126,13 +126,13 @@ on:
         default: 'On'
 
       UNICODE_BYPASS:
-        description: "是否添加Unicode零宽绕过修复补丁"
+        description: "是否添加Unicode零宽绕过修复补丁(高内核版本不推荐开启, 建议使用 https://t.me/real5ec1cff/268 无痛修复)"
         required: true
         type: choice
         options:
           - 'On'
           - 'Off'
-        default: 'On'
+        default: 'Off'
          
 jobs:
   build:
