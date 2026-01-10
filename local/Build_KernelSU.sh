@@ -27,6 +27,7 @@ lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd; 6.6 关闭时�
 bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
 bbg=$(ask "是否启用 Baseband-Guard 基带防护? (On/Off)" "On")
 proxy=$(ask "是否添加代理性能优化? (如为联发科 CPU 必须选择 Off) (On/Off)" "On")
+UNICODE_BYPASS=$(ask "是否添加Unicode零宽绕过修复补丁(高内核版本不推荐开启, 建议使用 https://t.me/real5ec1cff/271 无痛修复) (On/Off)" "Off")
 
 clear
 echo ""
@@ -41,7 +42,8 @@ echo "是否启用 SUSFS           : $SUSFS"
 echo "是否启用 lz4kd           : $lz4kd"
 echo "是否启用 BBR             : $bbr"
 echo "是否启用 Baseband-Guard  : $bbg"
-echo "是否启用代理优化         : $proxy"
+echo "是否启用代理优化          : $proxy"
+echo "是否启用 Unicode 绕过修复 : $UNICODE_BYPASS"
 echo "================================================="
 read -p "按回车键开始构建流程..."
 clear
@@ -186,10 +188,13 @@ fi
 cp ../kernel_patches/zram/001-lz4.patch ./common/
 cp ../kernel_patches/zram/lz4armv8.S ./common/lib
 cp ../kernel_patches/zram/002-zstd.patch ./common/
-if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
-  cp ../kernel_patches/common/unicode_bypass_fix_6.1+.patch ./common/unicode_bypass_fix.patch
-elif [ "$KERNEL_VERSION" = "5.15" ] || [ "$KERNEL_VERSION" = "5.10" ]; then
-  cp ../kernel_patches/common/unicode_bypass_fix_6.1-.patch ./common/unicode_bypass_fix.patch
+
+if [ "$UNICODE_BYPASS" = "On" ]; then
+  if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
+    cp ../kernel_patches/common/unicode_bypass_fix_6.1+.patch ./common/unicode_bypass_fix.patch
+  elif [ "$KERNEL_VERSION" = "5.15" ] || [ "$KERNEL_VERSION" = "5.10" ]; then
+    cp ../kernel_patches/common/unicode_bypass_fix_6.1-.patch ./common/unicode_bypass_fix.patch
+  fi
 fi
 
 if [ "$lz4kd" = "On" ]; then
@@ -216,8 +221,10 @@ elif [ "$SUSFS" == "Off" ]; then
   cd ./common
 fi
 
-echo "📦 应用修复Unicode绕过补丁..."
-patch -p1 < unicode_bypass_fix.patch
+if [ "$UNICODE_BYPASS" = "On" ]; then
+  echo "📦 正在应用Unicode零宽绕过修复补丁..."
+  patch -p1 < unicode_bypass_fix.patch
+fi
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 正在为 6.1 应用 lz4 + zstd 补丁..."
