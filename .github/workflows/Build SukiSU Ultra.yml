@@ -135,7 +135,7 @@ on:
         default: 'On'
 
       UNICODE_BYPASS:
-        description: "是否添加Unicode零宽绕过修复补丁(高内核版本不推荐开启, 建议使用 https://t.me/real5ec1cff/268 无痛修复)"
+        description: "是否添加Unicode零宽绕过修复补丁(高内核版本不推荐开启, 建议使用 https://t.me/real5ec1cff/271 无痛修复)"
         required: true
         type: choice
         options:
