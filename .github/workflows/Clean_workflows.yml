@@ -14,6 +14,7 @@ on:
           - Build Kernel Only
           - Build KernelSU Official
           - Build SukiSU Ultra (40129)
+          - Build ReSukiSU
       count:
         description: '最多清理的运行次数'
         required: false

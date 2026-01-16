@@ -23,11 +23,10 @@
 
 ### ② 配置文件说明
 
-以 `OnePlus 12` 为例：
-- `_b` 后缀：ColorOS 16
-- `_v` 后缀：ColorOS 15
-- `_u` 后缀：ColorOS 14
-- `_t` 后缀：ColorOS 13
+- `_b` 后缀：ColorOS/OxygenOS 16
+- `_v` 后缀：ColorOS/OxygenOS 15
+- `_u` 后缀：ColorOS/OxygenOS 14
+- `_t` 后缀：ColorOS/OxygenOS 13
 
 <img width="1122" height="257" alt="image" src="https://github.com/user-attachments/assets/24631b01-ec9d-4f77-a764-476cfe522537" />
 
@@ -42,4 +41,4 @@
 - **BBR算法**：对手机日用无太大意义甚至可能负优化，推荐关闭
 - **BBG基带守护**: 当然推荐开启，看名字就知道是干啥的
 - **⚠️代理优化**: 骁龙芯片可以开，联发科芯片 `千万不要开` ，否则出现恶性Bug！
-- **是否添加Unicode零宽绕过修复补丁**: 推荐内核版本为android12-5.10的开启, 5.15-6.6可以使用 https://t.me/real5ec1cff/271 无痛修复
+- **是否添加Unicode零宽绕过修复补丁**: 仅推荐内核KMI版本为``android12-5.10``开启, ``5.15-6.6``可以使用 [这个 LSPosed 模块](https://t.me/real5ec1cff/271) 无痛修复
