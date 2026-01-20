@@ -22,6 +22,7 @@ CPU=$(ask "请输入 CPU 分支 (例如: sm8750, sm8650, sm8550, sm8475)" "sm865
 FEIL=$(ask "请输入手机型号 (例如: oneplus_13_b, oneplus_12_b, oneplus_11_b)" "oneplus_12_b")
 ANDROID_VERSION=$(ask "请输入安卓 KMI 版本 (android15, android14, android13, android12)" "android14")
 KERNEL_VERSION=$(ask "请输入内核版本 (6.6, 6.1, 5.15, 5.10)" "6.1")
+SUSFS=$(ask "是否启用 SUSFS? (On/Off)" "Off")
 lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4) (On/Off)" "Off")
 bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
 bbg=$(ask "是否启用 Baseband-Guard 基带防护? (On/Off)" "On")
@@ -37,6 +38,7 @@ echo "手机型号                 : $FEIL"
 echo "CPU 分支                 : $CPU"
 echo "安卓 KMI 版本            : $ANDROID_VERSION"
 echo "内核版本                 : $KERNEL_VERSION"
+echo "是否启用 SUSFS           : $SUSFS"
 echo "是否启用 lz4kd           : $lz4kd"
 echo "是否启用 BBR             : $bbr"
 echo "是否启用 Baseband-Guard  : $bbg"
@@ -63,7 +65,11 @@ clear
 echo "✅ 必要构建依赖安装完成"
 
 echo "⚙️ 正在配置 ccache 缓存..."
-export CCACHE_DIR="$HOME/.ccache_${FEIL}_Next"
+if [ "$SUSFS" == "On" ]; then
+  export CCACHE_DIR="$HOME/.ccache_${FEIL}_Next_SUSFS"
+else
+  export CCACHE_DIR="$HOME/.ccache_${FEIL}_Next_NoSUSFS"
+fi
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
 export CCACHE_NOHASHDIR="true"
 export CCACHE_HARDLINK="true"
@@ -148,16 +154,22 @@ echo "✅ KernelSU Next 版本信息配置完成."
 cd ../..
 
 echo "🔧 正在克隆所需补丁..."
-git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
+if [ "$SUSFS" == "On" ]; then
+  git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
+fi
 git clone https://github.com/Xiaomichael/kernel_patches.git
 git clone https://github.com/ShirkNeko/SukiSU_patch.git
 
 cd kernel_platform
 echo "📝 正在复制补丁文件..."
-cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-# cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
-cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+
+if [ "$SUSFS" == "On" ]; then
+  cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
+  cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
+  cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+else
+  cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
+fi
 
 cp ../kernel_patches/zram/001-lz4.patch ./common/
 cp ../kernel_patches/zram/lz4armv8.S ./common/lib
@@ -187,8 +199,6 @@ if [ "$UNICODE_BYPASS" = "On" ]; then
   patch -p1 < unicode_bypass_fix.patch
 fi
 
-patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
-
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 正在为 6.1 应用 lz4 + zstd 补丁..."
   git apply -p1 < 001-lz4.patch || true
@@ -208,9 +218,15 @@ if [ "$lz4kd" = "On" ]; then
   patch -p1 -F 3 < lz4k_oplus.patch || true
 fi
 
-cp ../../kernel_patches/69_hide_stuff.patch ./
-patch -p1 -F 3 < 69_hide_stuff.patch || true
-# patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
+if [ "$SUSFS" == "On" ]; then
+  patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
+  cp ../../kernel_patches/69_hide_stuff.patch ./
+  patch -p1 -F 3 < 69_hide_stuff.patch || true
+else
+  echo "📦 应用 MANUAL_HOOK 补丁..."
+  patch -p1 --fuzz=3 < scope_min_manual_hooks_v1.6.patch
+fi
+
 echo "✅ 所有补丁应用完成"
 cd ../..
 
@@ -248,8 +264,11 @@ DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/co
 
 cat <<EOT >> "$DEFCONFIG_PATH"
 
-#--- KernelSU Next & SUSFS Custom Configs ---
-CONFIG_KSU=y
+echo "CONFIG_KSU=y" >> "$DEFCONFIG_PATH"
+
+if [ "$SUSFS" = "On" ]; then
+    echo "📦 启用 SUSFS 功能..."
+    cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_KSU_SUSFS=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
 CONFIG_KSU_SUSFS_SUS_MOUNT=y
@@ -260,11 +279,18 @@ CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_MAP=y
-
-# 添加对 Mountify (backslashxx/mountify) 模块的支持
-CONFIG_TMPFS_XATTR=y
-CONFIG_TMPFS_POSIX_ACL=y
 EOT
+else
+    echo "📦 启用 MANUAL_HOOK..."
+    cat <<EOT >> "$DEFCONFIG_PATH"
+CONFIG_KSU_SUSFS=n
+CONFIG_KSU_MANUAL_HOOK=y
+EOT
+fi
+
+#添加对 Mountify (backslashxx/mountify) 模块的支持
+echo "CONFIG_TMPFS_XATTR=y" >> "$DEFCONFIG_PATH"
+echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$DEFCONFIG_PATH"
 
 if [ "$bbg" = "On" ]; then
   echo "⚡ 配置 BBG 中..."
@@ -391,6 +417,10 @@ elif [ "$KERNEL_VERSION" = "6.6" ]; then
 else
   ARTIFACT_NAME="${FEIL}_KernelSU_Next_${KSUVER}"
 fi
+if [ "$SUSFS" = "On" ]; then
+  ARTIFACT_NAME="${ARTIFACT_NAME}_SUSFS"
+fi
+
 FINAL_ZIP_NAME="${ARTIFACT_NAME}.zip"
 
 echo "📦 正在创建最终可刷入压缩包: ${FINAL_ZIP_NAME}..."
