@@ -318,12 +318,9 @@ CONFIG_KSU_MANUAL_HOOK=y
 EOT
 fi
 
-cat <<EOT >> "$DEFCONFIG_PATH"
-
-# 为 Mountify (backslashxx/mountify) 模块开启必要选项
-CONFIG_TMPFS_XATTR=y
-CONFIG_TMPFS_POSIX_ACL=y
-EOT
+#添加对 Mountify (backslashxx/mountify) 模块的支持
+echo "CONFIG_TMPFS_XATTR=y" >> "$DEFCONFIG_PATH"
+echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$DEFCONFIG_PATH"
 
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
 
