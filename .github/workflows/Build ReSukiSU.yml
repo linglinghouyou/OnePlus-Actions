@@ -324,7 +324,7 @@ jobs:
             cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
             cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           else
-            cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.7.patch ./common/
+            cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.9.patch ./common/
           fi
           cp ../kernel_patches/zram/001-lz4.patch ./common/
           cp ../kernel_patches/zram/lz4armv8.S ./common/lib
@@ -377,7 +377,7 @@ jobs:
             patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           else
             echo "📦 应用MANUAL_HOOK补丁..."
-            patch -p1 -F 3 < scope_min_manual_hooks_v1.7.patch
+            patch -p1 -F 3 < scope_min_manual_hooks_v1.9.patch
           fi
 
           echo "✅ 所有补丁应用完成"
