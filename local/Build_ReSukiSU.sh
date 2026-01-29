@@ -203,7 +203,7 @@ if [ "$SUSFS" = "On" ]; then
     cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
     cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 else
-    cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.7.patch ./common/
+    cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.9.patch ./common/
 fi
 
 cp ../kernel_patches/zram/001-lz4.patch ./common/
@@ -238,7 +238,7 @@ if [ "$SUSFS" = "On" ]; then
     patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 else
     echo "📦 应用 MANUAL_HOOK 补丁..."
-    patch -p1 -F 3 < scope_min_manual_hooks_v1.7.patch
+    patch -p1 -F 3 < scope_min_manual_hooks_v1.9.patch
 fi
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
