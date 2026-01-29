@@ -149,7 +149,7 @@ curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup
 
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
-export KSUVER=$(expr $KSU_VERSION_COUNT + 30000)
+export KSUVER=$(expr $KSU_VERSION_COUNT + 30700)
 
 for i in {1..3}; do
   KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/builtin/kernel/Kbuild" | \
