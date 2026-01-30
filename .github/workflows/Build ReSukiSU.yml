@@ -419,6 +419,7 @@ jobs:
           
           echo "📦 启用 KSU 支持..."
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_MULTI_MANAGER_SUPPORT=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           if [ "${{ github.event.inputs.KPM }}" == "On" ]; then
             echo "📦 启用 KPM..."
