@@ -443,7 +443,7 @@ cp "$IMAGE_PATH" ./AnyKernel3/Image
 if [ "$KPM" = 'On' ]; then
     echo "🧩 正在对内核 Image 应用 KPM 补丁..."
     mkdir -p kpm_patch_temp && cd kpm_patch_temp
-    curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.2/patch_linux
+    curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.13.0/patch_linux
     chmod +x patch_linux
     cp "$WORKSPACE/AnyKernel3/Image" ./Image
     ./patch_linux
