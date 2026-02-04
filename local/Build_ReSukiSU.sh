@@ -145,14 +145,14 @@ fi
 
 echo "⚡ 正在配置 ReSukiSU..."
 cd kernel_platform
-curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s builtin
+curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main
 
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 30700)
 
 for i in {1..3}; do
-  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/builtin/kernel/Kbuild" | \
+  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/Kbuild" | \
     grep -m1 "KSU_VERSION_API :=" | cut -d'=' -f2 | tr -d '[:space:]')
   [ -n "$KSU_API_VERSION" ] && break || sleep 2
 done
@@ -162,7 +162,7 @@ if [ -z "$KSU_API_VERSION" ]; then
   exit 1
 fi
 
-KSU_COMMIT_HASH=$(git ls-remote https://github.com/ReSukiSU/ReSukiSU.git refs/heads/builtin | cut -f1 | cut -c1-8)
+KSU_COMMIT_HASH=$(git ls-remote https://github.com/ReSukiSU/ReSukiSU.git refs/heads/main | cut -f1 | cut -c1-8)
 KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@ReSukiSU"
 
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
