@@ -71,7 +71,7 @@ on:
         default: 'android14'
         
       KERNEL_VERSION:
-        description: "内核版本"
+        description: "内核安卓KMI版本"
         required: true
         type: choice
         options:
