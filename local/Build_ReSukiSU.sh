@@ -151,41 +151,7 @@ cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 30700)
 
-for i in {1..3}; do
-  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/Kbuild" | \
-    grep -m1 "KSU_VERSION_API :=" | cut -d'=' -f2 | tr -d '[:space:]')
-  [ -n "$KSU_API_VERSION" ] && break || sleep 2
-done
-
-if [ -z "$KSU_API_VERSION" ]; then
-  echo "❌ 错误：未能获取 KSU_API_VERSION" >&2
-  exit 1
-fi
-
-KSU_COMMIT_HASH=$(git ls-remote https://github.com/ReSukiSU/ReSukiSU.git refs/heads/main | cut -f1 | cut -c1-8)
-KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@ReSukiSU"
-
-sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
-sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
-sed -i '/KSU_VERSION_FULL :=/d' kernel/Kbuild
-
-TMP_FILE=$(mktemp)
-while IFS= read -r line; do
-  echo "$line" >> "$TMP_FILE"
-  if echo "$line" | grep -q 'REPO_OWNER :='; then
-    cat >> "$TMP_FILE" <<EOF
-define get_ksu_version_full
-v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow@ReSukiSU
-endef
-
-KSU_VERSION_API := ${KSU_API_VERSION}
-KSU_VERSION_FULL := ${KSU_VERSION_FULL}
-EOF
-  fi
-done < kernel/Kbuild
-mv "$TMP_FILE" kernel/Kbuild
-
-echo "✅ ReSukiSU 版本信息配置完成"
+echo "✅ ReSukiSU 配置完成"
 cd ../..
 
 echo "🔧 正在克隆所需补丁..."
@@ -295,6 +261,7 @@ echo "⚙️ 正在配置内核编译选项..."
 DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/configs/gki_defconfig"
 
 echo "CONFIG_KSU=y" >> "$DEFCONFIG_PATH"
+echo "CONFIG_KSU_FULL_NAME_FORMAT=\"%TAG_NAME%-%COMMIT_SHA%-xiaoxiaow@ReSukiSU\"" >> "$DEFCONFIG_PATH"
 echo "CONFIG_KSU_MULTI_MANAGER_SUPPORT=y" >> "$DEFCONFIG_PATH"
 
 if [ "$SUSFS" = "On" ]; then
