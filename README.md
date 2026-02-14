@@ -25,9 +25,9 @@
 ### ① 分支选择
 
 1. 点击 `Branches` 切换处理器分支
-2. 选择适合您设备的配置 [如下图，如果实在找不到代号名称去网上搜搜]
+2. 选择适合您设备的配置 (Tips: 如果实在找不到代号名称去网上搜搜)
 
-<img width="219" height="488" alt="image" src="https://github.com/user-attachments/assets/a62811aa-357d-4645-830c-002e7a7f6e03" />
+<img width="376" height="77" alt="{B57A09D0-EC2F-4B86-9821-9C6CAC6435CF}" src="https://github.com/user-attachments/assets/0f97b652-b1e4-484d-90c0-9e36bc15cdf0" />
 
 ### ② 配置文件说明
 
