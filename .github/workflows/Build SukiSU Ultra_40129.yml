@@ -274,13 +274,6 @@ jobs:
           curl -L -o sukisu_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/sukisu_setup_40129.bin
           chmod +x sukisu_setup.bin
           
-          # 验证Makefile存在
-          if [ ! -f "kernel/Makefile" ]; then
-            echo "❌ 错误：缺少kernel/Makefile"
-            ls -la
-            exit 1
-          fi
-          
           ./sukisu_setup.bin
           rm -rf ./sukisu_setup.bin
           
