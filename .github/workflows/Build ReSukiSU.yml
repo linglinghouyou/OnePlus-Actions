@@ -81,13 +81,13 @@ on:
         default: '6.1'
 
       SUSFS:
-        description: "是否启用SUSFS"
+        description: "是否启用SUSFS(近期上游在写shit, 建议关闭, 否则编译绝对报错)"
         required: true
         type: choice
         options:
           - 'On'
           - 'Off'
-        default: 'On'
+        default: 'Off'
 
       KPM:
         description: "是否启用KPM"
