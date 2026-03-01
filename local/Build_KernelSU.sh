@@ -22,7 +22,7 @@ CPU=$(ask "请输入 CPU 分支 (例如: sm8750, sm8650, sm8550, sm8475)" "sm865
 FEIL=$(ask "请输入手机型号 (例如: oneplus_13_b, oneplus_12_b, oneplus_11_b)" "oneplus_12_b")
 ANDROID_VERSION=$(ask "请输入内核安卓 KMI 版本 (android15, android14, android13, android12)" "android14")
 KERNEL_VERSION=$(ask "请输入内核版本 (6.6, 6.1, 5.15, 5.10)" "6.1")
-SUSFS=$(ask "是否启用 SUSFS? (近期上游在写shit, 建议关闭, 否则编译绝对报错) (On/Off)" "Off")
+SUSFS=$(ask "是否启用 SUSFS? (On/Off)" "On")
 lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4) (On/Off)" "Off")
 bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
 bbg=$(ask "是否启用 Baseband-Guard 基带防护? (On/Off)" "On")
@@ -155,34 +155,16 @@ cd ../..
 
 echo "🔧 正在克隆所需补丁..."
 if [ "$SUSFS" == "On" ]; then
-  git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
+  git clone https://github.com/cctv18/susfs4oki.git -b oki-${ANDROID_VERSION}-${KERNEL_VERSION}
 fi
 git clone https://github.com/Xiaomichael/kernel_patches.git
 git clone https://github.com/ShirkNeko/SukiSU_patch.git
 
 cd kernel_platform
 echo "📝 正在复制补丁文件..."
-if [ "$SUSFS" == "On" ]; then
-  cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-  PATCH_FILE="./KernelSU/10_enable_susfs_for_ksu.patch"
-  if [ -f "$PATCH_FILE" ]; then
-    if grep -q "a/kernel/Makefile" "$PATCH_FILE"; then
-      echo "🛠️ 检测到旧版 Makefile 补丁代码，正在执行修复..."
-      sed -i 's|kernel/Makefile|kernel/Kbuild|g' "$PATCH_FILE"
-      sed -i 's|.*compdb.*|@@ -75,4 +75,13 @@ ccflags-y += -DEXPECTED_HASH=\\"$(KSU_EXPECTED_HASH)\\"|' "$PATCH_FILE"
-      sed -i 's|^ clean:| ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes|' "$PATCH_FILE"
-      sed -i 's|.*make -C.*| ccflags-y += -Wno-declaration-after-statement -Wno-unused-function|' "$PATCH_FILE"
-      echo "✅ 补丁修复完成！"
-    else
-      echo "📝 补丁代码已修复至 Kbuild 或不匹配，跳过修改..."
-    fi
-  else
-    echo "❌ 未找到SUSFS补丁！"
-    exit 1
-  fi
-  cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-  cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-  cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+  cp ../susfs4oki/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
+  cp ../susfs4oki/kernel_patches/fs/* ./common/fs/
+  cp ../susfs4oki/kernel_patches/include/linux/* ./common/include/linux/
 fi
 
 cp ../kernel_patches/zram/001-lz4.patch ./common/
