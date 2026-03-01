@@ -22,7 +22,7 @@ CPU=$(ask "请输入 CPU 分支 (例如: sm8750, sm8650, sm8550, sm8475)" "sm865
 FEIL=$(ask "请输入手机型号 (例如: oneplus_13_b, oneplus_12_b, oneplus_11_b)" "oneplus_12_b")
 ANDROID_VERSION=$(ask "请输入内核安卓 KMI 版本 (android15, android14, android13, android12)" "android14")
 KERNEL_VERSION=$(ask "请输入内核版本 (6.6, 6.1, 5.15, 5.10)" "6.1")
-SUSFS=$(ask "是否启用 SUSFS? (近期上游在写shit, 建议关闭, 否则编译绝对报错) (On/Off)" "Off")
+SUSFS=$(ask "是否启用 SUSFS? (On/Off)" "On")
 KPM=$(ask "是否启用 KPM (Kernel Patch Manager)? (On/Off)" "Off")
 lz4kd=$(ask "是否启用 lz4kd? (6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4) (On/Off)" "Off")
 bbr=$(ask "是否启用 BBR 拥塞控制算法? (On/Off)" "Off")
@@ -156,7 +156,7 @@ cd ../..
 
 echo "🔧 正在克隆所需补丁..."
 if [ "$SUSFS" = "On" ]; then
-    git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
+    git clone https://github.com/cctv18/susfs4oki.git -b oki-${ANDROID_VERSION}-${KERNEL_VERSION}
 fi
 git clone https://github.com/Xiaomichael/kernel_patches.git
 git clone https://github.com/ShirkNeko/SukiSU_patch.git
@@ -165,9 +165,9 @@ cd kernel_platform
 echo "📝 正在复制补丁文件..."
 
 if [ "$SUSFS" = "On" ]; then
-    cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-    cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-    cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+    cp ../susfs4oki/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
+    cp ../susfs4oki/kernel_patches/fs/* ./common/fs/
+    cp ../susfs4oki/kernel_patches/include/linux/* ./common/include/linux/
 else
     cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.9.patch ./common/
 fi
