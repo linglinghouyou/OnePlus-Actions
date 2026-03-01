@@ -81,13 +81,13 @@ on:
         default: '6.1'
 
       SUSFS:
-        description: "是否启用SUSFS(近期上游在写shit, 建议关闭, 否则编译绝对报错)"
+        description: "是否启用SUSFS"
         required: true
         type: choice
         options:
           - 'On'
           - 'Off'
-        default: 'Off'
+        default: 'On'
 
       lz4kd:
         description: "是否启用lz4kd(6.1 关闭时使用 lz4 + zstd; 6.6 关闭时使用 lz4)"
@@ -288,7 +288,7 @@ jobs:
 
           echo "⬇️ 下载所需补丁..."
           if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then          
-            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
+            git clone https://github.com/cctv18/susfs4oki.git -b oki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
           fi
           git clone https://github.com/Xiaomichael/kernel_patches.git
           git clone https://github.com/ShirkNeko/SukiSU_patch.git
@@ -296,9 +296,9 @@ jobs:
           cd kernel_platform
           echo "📝 复制补丁文件..."
           if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
-            cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
-            cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
+            cp ../susfs4oki/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
+            cp ../susfs4oki/kernel_patches/fs/* ./common/fs/
+            cp ../susfs4oki/kernel_patches/include/linux/* ./common/include/linux/
           else
             cp ../kernel_patches/next/scope_min_manual_hooks_v1.6.patch ./common/
           fi
