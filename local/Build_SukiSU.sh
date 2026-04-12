@@ -152,7 +152,7 @@ KSU_VERSION_COUNT=$(git rev-list --count main)
 export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
 
 for i in {1..3}; do
-  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/Kbuild" | \
+  KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/builtin/kernel/Makefile" | \
     grep -m1 "KSU_VERSION_API :=" | cut -d'=' -f2 | tr -d '[:space:]')
   [ -n "$KSU_API_VERSION" ] && break || sleep 2
 done
@@ -165,9 +165,9 @@ fi
 KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/builtin | cut -f1 | cut -c1-8)
 KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@builtin"
 
-sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
-sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
-sed -i '/KSU_VERSION_FULL :=/d' kernel/Kbuild
+sed -i '/define get_ksu_version_full/,/endef/d' kernel/Makefile
+sed -i '/KSU_VERSION_API :=/d' kernel/Makefile
+sed -i '/KSU_VERSION_FULL :=/d' kernel/Makefile
 
 TMP_FILE=$(mktemp)
 while IFS= read -r line; do
@@ -182,8 +182,8 @@ KSU_VERSION_API := ${KSU_API_VERSION}
 KSU_VERSION_FULL := ${KSU_VERSION_FULL}
 EOF
   fi
-done < kernel/Kbuild
-mv "$TMP_FILE" kernel/Kbuild
+done < kernel/Makefile
+mv "$TMP_FILE" kernel/Makefile
 
 echo "✅ SukiSU Ultra 版本信息配置完成"
 cd ../..
@@ -407,12 +407,12 @@ cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
 MAKE_CMD_COMMON="make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=\"ccache clang\" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all"
 
 if [ "$KERNEL_VERSION" = "6.1" ]; then
-    export KBUILD_BUILD_TIMESTAMP="Tue Dec 12 12:32:56 UTC 2025"
-    export KBUILD_BUILD_VERSION=1
+    export Makefile_BUILD_TIMESTAMP="Tue Dec 12 12:32:56 UTC 2025"
+    export Makefile_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
 elif [ "$KERNEL_VERSION" = "6.6" ]; then
-    export KBUILD_BUILD_VERSION=1
+    export Makefile_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
 elif [ "$KERNEL_VERSION" = "5.15" ]; then
