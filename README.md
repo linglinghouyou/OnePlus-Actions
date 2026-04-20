@@ -4,6 +4,8 @@
 
 如果遇到问题欢迎提交``issue``！也随时欢迎``Pull Requests``！
 
+[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/gki_kernels_xiaoxiaow) [![Coolapk](https://img.shields.io/badge/Follow-Coolapk-3DDC84?style=flat-square&logo=android&logoColor=white)](https://www.coolapk.com/u/24701380)
+
 <img width="250" height="250" alt="image" src="https://github.com/user-attachments/assets/55acad97-8fe6-4de7-b9ce-90da9552a212" />
 
 ## OnePlus 开源地址
@@ -40,7 +42,7 @@
 
 ### ③ 配置开关建议
 
-- **SUSFS选项**：SUSFS在编译时已经改为可选，看你的需求进行开关。近期上游在拉💩💩💩, 建议关闭, 否则编译绝对报错
+- **SUSFS选项**：SUSFS在编译时已经改为可选，看你的需求进行开关。近期上游在拉💩💩💩, 建议关闭
 - **KPM选项**：仅在 ``SukiSU Ultra`` ``ReSukiSU`` 支持开启，建议禁用以减少电量消耗，挂🐕去④
 - **lz4kd**：
   - ``6.1系``内核：建议关闭该选项以获得更好的 `lz4 + zstd` 压缩方式
