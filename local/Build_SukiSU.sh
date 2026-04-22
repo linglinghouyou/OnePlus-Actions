@@ -206,9 +206,9 @@ else
     cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6.patch ./common/
 fi
 
-cp ../kernel_patches/zram/001-lz4.patch ./common/
-cp ../kernel_patches/zram/lz4armv8.S ./common/lib
-cp ../kernel_patches/zram/002-zstd.patch ./common/
+cp ../kernel_patches/zram_patches/001-lz4.patch ./common/
+cp ../kernel_patches/zram_patches/lz4armv8.S ./common/lib
+cp ../kernel_patches/zram_patches/002-zstd.patch ./common/
 
 if [ "$UNICODE_BYPASS" = "On" ]; then
   if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
