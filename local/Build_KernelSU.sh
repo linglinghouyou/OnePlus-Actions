@@ -167,9 +167,9 @@ echo "📝 正在复制补丁文件..."
   cp ../susfs4oki/kernel_patches/include/linux/* ./common/include/linux/
 fi
 
-cp ../kernel_patches/zram/001-lz4.patch ./common/
-cp ../kernel_patches/zram/lz4armv8.S ./common/lib
-cp ../kernel_patches/zram/002-zstd.patch ./common/
+cp ../kernel_patches/zram_patches/001-lz4.patch ./common/
+cp ../kernel_patches/zram_patches/lz4armv8.S ./common/lib
+cp ../kernel_patches/zram_patches/002-zstd.patch ./common/
 
 if [ "$UNICODE_BYPASS" = "On" ]; then
   if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
