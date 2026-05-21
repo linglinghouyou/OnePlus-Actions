@@ -22,6 +22,8 @@
 
 支持 ``ReSukiSU`` ``SukiSU Ultra`` ``KernelSU Next`` ``KernelSU Official``, 当然你也可以编译仅加入优化的 ``无 Root`` 内核
 
+tips: SukiSU 由于长期不更新 编译时容易报错且稳定性较差 已经不推荐使用 建议使用ReSukiSU
+
 ## 使用指南
 
 ### ① 分支选择
@@ -40,7 +42,7 @@
 
 <img width="1122" height="257" alt="image" src="https://github.com/user-attachments/assets/24631b01-ec9d-4f77-a764-476cfe522537" />
 
-### ③ 配置开关建议
+### ③ 配置开关建议 & 内核特性
 
 - **SUSFS选项**：SUSFS在编译时已经改为可选，看你的需求进行开关。近期上游在拉💩💩💩, 建议关闭
 - **KPM选项**：仅在 ``SukiSU Ultra`` ``ReSukiSU`` 支持开启，建议禁用以减少电量消耗，挂🐕去④
@@ -52,3 +54,7 @@
 - **BBG基带守护**: 推荐开启，看名字就知道是干啥的
 - **⚠️代理优化**: 骁龙芯片可以开，联发科芯片 `千万不要开` ，否则出现恶性Bug！
 - **是否添加Unicode零宽绕过修复补丁**: 仅推荐内核KMI版本为``android12-5.10``开启, ``5.15 - 6.12``可以使用 [这个 LSPosed 模块](https://t.me/real5ec1cff/271) 无痛修复
+
+### ④ 作者碎碎念
+
+- **关于元模块**: 推荐 [magic_mount-rs](https://github.com/Tools-cx-app/meta-magic_mount-rs/releases)
