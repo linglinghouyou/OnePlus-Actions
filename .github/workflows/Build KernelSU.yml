@@ -130,7 +130,7 @@ on:
         default: 'On'
 
       UNICODE_BYPASS:
-        description: "是否添加Unicode零宽绕过修复补丁(高内核版本不推荐开启, 建议使用 https://t.me/real5ec1cff/271 无痛修复)"
+        description: "是否添加Unicode零宽绕过修复补丁(除5.10版本外版本不推荐开启, 建议使用 https://t.me/real5ec1cff/271 无痛修复)"
         required: true
         type: choice
         options:
@@ -403,7 +403,7 @@ jobs:
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           if [ "${{ github.event.inputs.SUSFS }}" == "On" ]; then
-            # Add SUSFS configuration settings
+            echo "📦 启用 SUSFS 功能..."
             echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -416,7 +416,7 @@ jobs:
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
-          #添加对 Mountify (backslashxx/mountify) 模块的支持
+          echo "⚡ 添加对 Mountify 的支持"
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
@@ -444,13 +444,12 @@ jobs:
           fi
 
           if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" ] || [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.6" ]; then
-            # Add O2 config
             echo "📦 为6.1&6.6加入O2优化..."
             echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> ./common/arch/arm64/configs/gki_defconfig
           fi
           
           if [ "${{ github.event.inputs.proxy }}" == "On" ]; then
-            # Add proxy config
+            echo "📦 加入代理优化..."
             echo "CONFIG_BPF_STREAM_PARSER=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_NETFILTER_XT_SET=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -485,9 +484,10 @@ jobs:
             grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG"
           fi
 
-          #跳过将uapi标准头安装到 usr/include 目录的不必要操作，节省编译时间
+          # 跳过将uapi标准头安装到 usr/include 目录的不必要操作，节省编译时间
           echo "CONFIG_HEADERS_INSTALL=n" >> ./common/arch/arm64/configs/gki_defconfig
 
+          echo "⚡ Remove check_defconfig"
           sed -i 's/check_defconfig//' ./common/build.config.gki
           echo "✅ 内核配置更新完成"
          
@@ -528,7 +528,6 @@ jobs:
             make -j$(nproc --all) LLVM_IAS=1 LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all
           fi
           
-          # 显示ccache统计信息
           ccache -s
           echo "✅ 内核编译完成"
          
