@@ -263,7 +263,7 @@ DEFCONFIG_PATH="$WORKSPACE/kernel_workspace/kernel_platform/common/arch/arm64/co
 
 echo "CONFIG_KSU=y" >> "$DEFCONFIG_PATH"
 
-#添加对 Mountify (backslashxx/mountify) 模块的支持
+echo "⚡ 添加对 Mountify 的支持"
 echo "CONFIG_TMPFS_XATTR=y" >> "$DEFCONFIG_PATH"
 echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$DEFCONFIG_PATH"
 
@@ -315,6 +315,7 @@ EOT
 fi
 
 if [ "$KERNEL_VERSION" = "6.1" ] || [ "$KERNEL_VERSION" = "6.6" ]; then
+  echo "📦 为6.1&6.6加入O2优化..."
   echo "CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y" >> "$DEFCONFIG_PATH"
 fi
 
