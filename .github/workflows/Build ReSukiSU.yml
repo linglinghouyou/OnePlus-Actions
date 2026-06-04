@@ -36,6 +36,7 @@ on:
           - 'oneplus_pad_2_pro_b'
           - 'oneplus_pad_3_b'
           - 'oneplus_ace5_ultra_b'
+          - 'oneplus_nord_6'
           - 'oneplus_turbo_6'
           - 'oneplus_12_b'
           - 'oneplus_ace3_pro_b'
@@ -346,9 +347,9 @@ jobs:
           fi
 
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
-            echo "📦 应用lz4+zstd补丁..."
+            echo "📦 应用lz4补丁..."
             git apply -p1 < 001-lz4.patch || true
-            patch -p1 < 002-zstd.patch || true
+            # patch -p1 < 002-zstd.patch || true
           fi
 
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
