@@ -11,6 +11,7 @@
 ## OnePlus 开源地址
 
 [![OnePlus Repository](https://img.shields.io/badge/OnePlus-Repository-red)](https://github.com/Xiaomichael/kernel_manifest)
+Tips: 最近上游内核源码可能会出现刷入不开机的情况，请仔细辨别
 
 ## 设备支持
 
